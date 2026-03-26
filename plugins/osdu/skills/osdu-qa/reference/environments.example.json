@@ -1,0 +1,52 @@
+{
+  "platforms": {
+    "azure": {
+      "type": "azure",
+      "description": "Microsoft Azure OSDU",
+      "auth_type": "azure-ad",
+      "env_vars": {
+        "host": "AI_OSDU_HOST",
+        "partition": "AI_OSDU_DATA_PARTITION",
+        "client_id": "AI_OSDU_CLIENT",
+        "client_secret": "AI_OSDU_SECRET",
+        "tenant_id": "AI_OSDU_TENANT_ID"
+      },
+      "environments": {
+        "example": {
+          "host": "osdu-example.contoso.com",
+          "partition": "opendes",
+          "description": "Example Azure OSDU environment"
+        }
+      }
+    },
+    "cimpl": {
+      "type": "cimpl",
+      "description": "OSDU CIMPL (OpenGroup on ROSA)",
+      "auth_type": "keycloak",
+      "host_pattern": "{env}.osdu-cimpl.example.org",
+      "api_host_pattern": "osdu.{env}.osdu-cimpl.example.org",
+      "token_url_pattern": "https://keycloak.{env}.osdu-cimpl.example.org/realms/osdu/protocol/openid-connect/token",
+      "clusters": {
+        "cluster-name": {
+          "description": "Example cluster"
+        }
+      },
+      "env_vars": {
+        "host": "AI_OSDU_HOST",
+        "partition": "AI_OSDU_DATA_PARTITION",
+        "client_id": "AI_OSDU_CLIENT",
+        "client_secret": "AI_OSDU_SECRET",
+        "token_url": "AI_OSDU_TOKEN_URL"
+      },
+      "environments": {
+        "qa": {
+          "cluster": "cluster-name",
+          "namespace": "qa",
+          "partition": "osdu",
+          "credential_var": "EXAMPLE_TEST_COLLECTION_CONFIG",
+          "description": "Example QA environment"
+        }
+      }
+    }
+  }
+}

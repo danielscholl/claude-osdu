@@ -1,0 +1,89 @@
+{
+  "skill_name": "glab",
+  "evals": [
+    {
+      "query": "can you show me what merge requests are currently open for me on the community gitlab?",
+      "should_trigger": true
+    },
+    {
+      "query": "I need to create an MR for my feature branch and assign alice and bob as reviewers",
+      "should_trigger": true
+    },
+    {
+      "query": "the pipeline for MR !320 is failing, can you check what went wrong?",
+      "should_trigger": true
+    },
+    {
+      "query": "how do I add a comment to a merge request using the command line?",
+      "should_trigger": true
+    },
+    {
+      "query": "list all closed issues tagged with 'bug' in the partition service repo",
+      "should_trigger": true
+    },
+    {
+      "query": "I pushed my branch but forgot to create the MR, can you do that for me with a good description?",
+      "should_trigger": true
+    },
+    {
+      "query": "retry the failed CI job on pipeline 45892",
+      "should_trigger": true
+    },
+    {
+      "query": "what's the glab command to mark an MR as ready for review? I accidentally made it a draft",
+      "should_trigger": true
+    },
+    {
+      "query": "run the smoke tests on cimpl/lab and compare with cimpl/qa results",
+      "should_trigger": false
+    },
+    {
+      "query": "check the dependencies for os-storage and find any critical CVEs",
+      "should_trigger": false
+    },
+    {
+      "query": "add a readiness probe to the partition helm chart",
+      "should_trigger": false
+    },
+    {
+      "query": "what's the pass rate for OSDU tests across all environments this week?",
+      "should_trigger": false
+    },
+    {
+      "query": "help me fix the terraform module that's getting a policy violation",
+      "should_trigger": false
+    },
+    {
+      "query": "who are the top contributors to OSDU this month?",
+      "should_trigger": false
+    },
+    {
+      "query": "build the partition service with maven and run the unit tests",
+      "should_trigger": false
+    },
+    {
+      "query": "search for well records in the OSDU platform with kind osdu:wks:master-data",
+      "should_trigger": false
+    },
+    {
+      "query": "review MR 845 on search-service and classify the pipeline failures",
+      "should_trigger": false,
+      "note": "MR code review + pipeline analysis -> mr-review"
+    },
+    {
+      "query": "ship my changes, commit everything and create an MR",
+      "should_trigger": false,
+      "note": "Full ship workflow -> send"
+    },
+    {
+      "query": "allow MR !320 by syncing the trusted branch",
+      "should_trigger": false,
+      "note": "Trusted branch sync -> maintainer"
+    },
+    {
+      "query": "push my test fixes into their MR as a sub-MR contribution",
+      "should_trigger": false,
+      "note": "Contributing to someone's MR -> contribute"
+    }
+  ]
+}

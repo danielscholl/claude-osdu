@@ -1,0 +1,51 @@
+{
+  "name": "osdu-activity-workflow",
+  "description": "Test osdu-activity skill \u2014 pipeline monitoring and MR tracking across OSDU services",
+  "ready_pattern": "\u276f|\\$|>|claude",
+  "steps": [
+    {
+      "name": "pipeline-status",
+      "prompt": "what OSDU pipelines are failing right now?",
+      "timeout": 180,
+      "pause_after": 3,
+      "assertions": [
+        {
+          "pattern": "osdu-activity|pipeline|failing|CI|status|no.*pipeline|couldn.*find",
+          "type": "regex",
+          "description": "Addresses pipeline status"
+        },
+        {
+          "pattern": "osdu-quality analyze|osdu-quality status|osdu-quality tests",
+          "type": "not_contains",
+          "description": "Does NOT run osdu-quality commands (mentioning it is fine)"
+        }
+      ]
+    },
+    {
+      "name": "open-mrs",
+      "prompt": "ok now show me what MRs are open for the storage service",
+      "timeout": 180,
+      "pause_after": 3,
+      "assertions": [
+        {
+          "pattern": "osdu-activity|merge request|MR|storage",
+          "type": "regex",
+          "description": "Uses osdu-activity for cross-service MR lookup"
+        }
+      ]
+    },
+    {
+      "name": "boundary-test",
+      "prompt": "are the storage tests flaky? I've seen them fail intermittently",
+      "timeout": 180,
+      "pause_after": 3,
+      "assertions": [
+        {
+          "pattern": "osdu-quality|flaky|reliability|pass rate",
+          "type": "regex",
+          "description": "Routes to osdu-quality for test reliability (not activity)"
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,81 @@
+{
+  "skill_name": "build-runner",
+  "evals": [
+    {
+      "query": "build partition and give me a structured summary of the results",
+      "should_trigger": true
+    },
+    {
+      "query": "run Maven verify on the storage service and summarize the output",
+      "should_trigger": true
+    },
+    {
+      "query": "compile and test the indexer service — just give me pass/fail, not the full log",
+      "should_trigger": true
+    },
+    {
+      "query": "execute the build for os-core-common and return a concise summary",
+      "should_trigger": true
+    },
+    {
+      "query": "run the build with tests and tell me what failed without dumping 5000 lines",
+      "should_trigger": true
+    },
+    {
+      "query": "build the legal service project — I need a structured result",
+      "should_trigger": true
+    },
+    {
+      "query": "run npm test on the frontend project and summarize",
+      "should_trigger": true
+    },
+    {
+      "query": "execute mvn clean install for search-service and give me the summary",
+      "should_trigger": true
+    },
+    {
+      "query": "run unit tests for partition after the dependency update",
+      "should_trigger": true
+    },
+    {
+      "query": "run the smoke tests on cimpl/lab",
+      "should_trigger": false,
+      "note": "QA test execution → osdu-qa"
+    },
+    {
+      "query": "check deps for partition with risk scoring",
+      "should_trigger": false,
+      "note": "Dependency analysis → dependency-scan"
+    },
+    {
+      "query": "apply the dependency updates from the report",
+      "should_trigger": false,
+      "note": "Remediation → remediate"
+    },
+    {
+      "query": "what pipelines are failing across OSDU services?",
+      "should_trigger": false,
+      "note": "Pipeline status → osdu-activity"
+    },
+    {
+      "query": "ship my changes and create the merge request",
+      "should_trigger": false,
+      "note": "Ship workflow → send"
+    },
+    {
+      "query": "how reliable are the search tests? any flaky ones?",
+      "should_trigger": false,
+      "note": "Test reliability → osdu-quality"
+    },
+    {
+      "query": "clone the partition service repo",
+      "should_trigger": false,
+      "note": "Repo clone → clone"
+    },
+    {
+      "query": "report on my environment health",
+      "should_trigger": false,
+      "note": "Environment health → health"
+    }
+  ]
+}

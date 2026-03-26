@@ -1,0 +1,81 @@
+{
+  "skill_name": "briefing",
+  "evals": [
+    {
+      "query": "gm",
+      "should_trigger": true
+    },
+    {
+      "query": "good morning — what's on my plate today?",
+      "should_trigger": true
+    },
+    {
+      "query": "gm, give me my daily briefing",
+      "should_trigger": true
+    },
+    {
+      "query": "generate today's briefing note with MR status and goal progress",
+      "should_trigger": true
+    },
+    {
+      "query": "morning standup — what should I focus on today?",
+      "should_trigger": true
+    },
+    {
+      "query": "daily briefing please",
+      "should_trigger": true
+    },
+    {
+      "query": "what's the status across my projects this morning?",
+      "should_trigger": true
+    },
+    {
+      "query": "start my day — briefing with MR summaries and priorities",
+      "should_trigger": true
+    },
+    {
+      "query": "briefing for 2026-03-20",
+      "should_trigger": true
+    },
+    {
+      "query": "put this in the vault — we decided to use AVM modules for all new Terraform",
+      "should_trigger": false,
+      "note": "Vault write → brain"
+    },
+    {
+      "query": "what did we decide about using CNPG vs Azure Postgres?",
+      "should_trigger": false,
+      "note": "Vault read → brain"
+    },
+    {
+      "query": "what pipelines are failing across OSDU services?",
+      "should_trigger": false,
+      "note": "Pipeline status → osdu-activity"
+    },
+    {
+      "query": "how reliable are the partition service tests?",
+      "should_trigger": false,
+      "note": "Test reliability → osdu-quality"
+    },
+    {
+      "query": "run the smoke tests on cimpl/lab",
+      "should_trigger": false,
+      "note": "Test execution → osdu-qa"
+    },
+    {
+      "query": "ship my changes and create the merge request",
+      "should_trigger": false,
+      "note": "Ship workflow → send"
+    },
+    {
+      "query": "who are the top contributors to OSDU this quarter?",
+      "should_trigger": false,
+      "note": "Contributors → osdu-engagement"
+    },
+    {
+      "query": "learn about the OSDU platform wiki and create knowledge notes",
+      "should_trigger": false,
+      "note": "Knowledge acquisition → learn"
+    }
+  ]
+}

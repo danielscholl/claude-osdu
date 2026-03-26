@@ -1,0 +1,59 @@
+{
+  "name": "brain-workflow",
+  "description": "Test brain skill — vault awareness, write discipline, QMD search, template knowledge",
+  "ready_pattern": "❯|\\$|>|claude",
+  "steps": [
+    {
+      "name": "vault-awareness",
+      "prompt": "what is the OSDU brain vault and how is it organized?",
+      "timeout": 180,
+      "pause_after": 3,
+      "assertions": [
+        {
+          "pattern": "00-inbox|01-goals|02-projects|03-knowledge|04-reports",
+          "type": "regex",
+          "description": "Knows the vault directory structure"
+        }
+      ]
+    },
+    {
+      "name": "template-knowledge",
+      "prompt": "if I wanted to log an architecture decision, what template would I use and where does it go?",
+      "timeout": 180,
+      "pause_after": 3,
+      "assertions": [
+        {
+          "pattern": "decision-record|adr|03-knowledge",
+          "type": "regex",
+          "description": "Knows ADR template and destination"
+        }
+      ]
+    },
+    {
+      "name": "write-discipline",
+      "prompt": "should I store raw kubectl output in the vault?",
+      "timeout": 180,
+      "pause_after": 3,
+      "assertions": [
+        {
+          "pattern": "no|don't|shouldn't|not|summarize|noise",
+          "type": "regex",
+          "description": "Correctly advises against storing raw output"
+        }
+      ]
+    },
+    {
+      "name": "boundary-test",
+      "prompt": "what's the terraform pattern for deploying a helm chart with AKS safeguard compliance?",
+      "timeout": 180,
+      "pause_after": 3,
+      "assertions": [
+        {
+          "pattern": "terraform|helm|postrender|kustomize|safeguard|iac",
+          "type": "regex",
+          "description": "Routes to infrastructure domain (not brain)"
+        }
+      ]
+    }
+  ]
+}

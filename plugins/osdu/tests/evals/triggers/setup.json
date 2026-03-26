@@ -1,0 +1,85 @@
+{
+  "skill_name": "setup",
+  "evals": [
+    {
+      "query": "setup — check what tools I need installed for this plugin",
+      "should_trigger": true
+    },
+    {
+      "query": "what CLI dependencies am I missing?",
+      "should_trigger": true
+    },
+    {
+      "query": "check my environment — do I have all the required tools?",
+      "should_trigger": true
+    },
+    {
+      "query": "I'm getting 'command not found' for osdu-activity, how do I install it?",
+      "should_trigger": true
+    },
+    {
+      "query": "I tried to check pipelines but osdu-activity isn't installed — help me set up",
+      "should_trigger": true
+    },
+    {
+      "query": "terraform command not found when I asked about infrastructure",
+      "should_trigger": true
+    },
+    {
+      "query": "run the dependency checker to see what's missing on my machine",
+      "should_trigger": true
+    },
+    {
+      "query": "first time using this plugin — what do I need to install?",
+      "should_trigger": true
+    },
+    {
+      "query": "make doctor is showing missing tools — help me fix them",
+      "should_trigger": true
+    },
+    {
+      "query": "check if I have terraform, helm, and kubectl installed",
+      "should_trigger": true
+    },
+    {
+      "query": "report on my environment health — are all nodes ready?",
+      "should_trigger": false,
+      "note": "Cluster health → health"
+    },
+    {
+      "query": "add a readiness probe to the helm chart for AKS safeguards",
+      "should_trigger": false,
+      "note": "Infrastructure → iac"
+    },
+    {
+      "query": "run the smoke tests on cimpl/lab",
+      "should_trigger": false,
+      "note": "Test execution → osdu-qa"
+    },
+    {
+      "query": "what pipelines are failing across OSDU services?",
+      "should_trigger": false,
+      "note": "Pipeline status → osdu-activity"
+    },
+    {
+      "query": "clone the partition service repo into the workspace",
+      "should_trigger": false,
+      "note": "Repo clone → clone"
+    },
+    {
+      "query": "check the dependencies for storage service and find CVEs",
+      "should_trigger": false,
+      "note": "Dependency analysis → dependency-scan"
+    },
+    {
+      "query": "good morning — give me my daily briefing",
+      "should_trigger": false,
+      "note": "Daily briefing → briefing"
+    },
+    {
+      "query": "ship my changes and create the merge request",
+      "should_trigger": false,
+      "note": "Ship workflow → send"
+    }
+  ]
+}

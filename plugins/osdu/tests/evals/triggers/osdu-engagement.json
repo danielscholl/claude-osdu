@@ -1,0 +1,77 @@
+{
+  "skill_name": "osdu-engagement",
+  "evals": [
+    {
+      "query": "who are the top contributors to OSDU this quarter? I want to see commit counts",
+      "should_trigger": true
+    },
+    {
+      "query": "show me reviewer activity across OSDU services — who's doing the most code reviews?",
+      "should_trigger": true
+    },
+    {
+      "query": "how engaged are the teams with ADR participation? which teams are lagging?",
+      "should_trigger": true
+    },
+    {
+      "query": "give me a contribution breakdown for the storage service — commits, reviews, and comments",
+      "should_trigger": true
+    },
+    {
+      "query": "what are the contribution trends for the OSDU platform over the last 3 months?",
+      "should_trigger": true
+    },
+    {
+      "query": "which engineers have been most active in merge request reviews this sprint?",
+      "should_trigger": true
+    },
+    {
+      "query": "I need to prepare a team engagement report — show me who's contributing where across OSDU",
+      "should_trigger": true
+    },
+    {
+      "query": "are there any OSDU services with low reviewer coverage? I want to know where reviews are bottlenecked",
+      "should_trigger": true
+    },
+    {
+      "query": "what pipelines are currently failing across OSDU?",
+      "should_trigger": false,
+      "note": "Pipeline status → osdu-activity"
+    },
+    {
+      "query": "show me all open merge requests waiting for review on the platform",
+      "should_trigger": false,
+      "note": "Open MRs → osdu-activity"
+    },
+    {
+      "query": "how reliable are the partition tests? are there flaky tests?",
+      "should_trigger": false,
+      "note": "Test reliability → osdu-quality"
+    },
+    {
+      "query": "what's the test pass rate for the search service on azure?",
+      "should_trigger": false,
+      "note": "Pass rates → osdu-quality"
+    },
+    {
+      "query": "run the legal API tests on cimpl/qa",
+      "should_trigger": false,
+      "note": "Test execution → osdu-qa"
+    },
+    {
+      "query": "retry the failed CI job on pipeline 45892",
+      "should_trigger": false,
+      "note": "CI operations → glab"
+    },
+    {
+      "query": "fix the terraform networking module that's failing validation",
+      "should_trigger": false,
+      "note": "Infrastructure → cimpl"
+    },
+    {
+      "query": "analyze the dependencies for os-partition and check for updates",
+      "should_trigger": false,
+      "note": "Dependencies → dependency-scan"
+    }
+  ]
+}

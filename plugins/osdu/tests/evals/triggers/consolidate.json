@@ -1,0 +1,77 @@
+{
+  "skill_name": "consolidate",
+  "evals": [
+    {
+      "query": "scan the vault for stale notes and contradictions",
+      "should_trigger": true
+    },
+    {
+      "query": "consolidate the vault — clean up old knowledge notes",
+      "should_trigger": true
+    },
+    {
+      "query": "which vault notes haven't been verified in over 90 days?",
+      "should_trigger": true
+    },
+    {
+      "query": "run vault hygiene — find any contradictory decisions",
+      "should_trigger": true
+    },
+    {
+      "query": "prune stale notes from the brain",
+      "should_trigger": true
+    },
+    {
+      "query": "check for decay in the knowledge vault",
+      "should_trigger": true
+    },
+    {
+      "query": "find notes that might be outdated or conflicting with each other",
+      "should_trigger": true
+    },
+    {
+      "query": "time for quarterly vault maintenance — flag anything stale",
+      "should_trigger": true
+    },
+    {
+      "query": "put this in the vault — we decided to use AVM modules for new Terraform",
+      "should_trigger": false,
+      "note": "Vault write → brain"
+    },
+    {
+      "query": "search the vault for anything about partition service",
+      "should_trigger": false,
+      "note": "Vault search → brain"
+    },
+    {
+      "query": "learn about OSDU from the wiki and create knowledge notes",
+      "should_trigger": false,
+      "note": "Knowledge acquisition → learn"
+    },
+    {
+      "query": "good morning — daily briefing please",
+      "should_trigger": false,
+      "note": "Briefing → briefing"
+    },
+    {
+      "query": "what pipelines are failing across OSDU services?",
+      "should_trigger": false,
+      "note": "Pipeline status → osdu-activity"
+    },
+    {
+      "query": "run the smoke tests on cimpl/lab",
+      "should_trigger": false,
+      "note": "Test execution → osdu-qa"
+    },
+    {
+      "query": "check the dependencies for storage service",
+      "should_trigger": false,
+      "note": "Dependency analysis → dependency-scan"
+    },
+    {
+      "query": "ship my changes and create the merge request",
+      "should_trigger": false,
+      "note": "Ship workflow → send"
+    }
+  ]
+}

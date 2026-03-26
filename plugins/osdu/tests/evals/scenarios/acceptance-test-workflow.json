@@ -1,0 +1,64 @@
+{
+  "name": "acceptance-test-workflow",
+  "description": "Test acceptance-test skill activation for service test discovery, environment resolution, and execution planning",
+  "ready_pattern": ">\u2502\\$|>|claude",
+  "steps": [
+    {
+      "name": "discover-tests",
+      "prompt": "what acceptance tests does the partition service have? just tell me what's available",
+      "timeout": 120,
+      "pause_after": 3,
+      "assertions": [
+        {
+          "pattern": "acceptance|integration|test-core|testing|partition-test",
+          "type": "regex",
+          "description": "Identifies available test modules in the partition repo"
+        }
+      ]
+    },
+    {
+      "name": "resolve-environment",
+      "prompt": "what environment variables are needed for partition acceptance tests against a cimpl environment?",
+      "timeout": 120,
+      "pause_after": 3,
+      "assertions": [
+        {
+          "pattern": "PARTITION_BASE_URL|BASE_URL|base.url|Service URL",
+          "type": "regex",
+          "description": "Identifies the service URL variable"
+        },
+        {
+          "pattern": "OPENID|TOKEN|auth|credential|CLIENT_ID|CLIENT_SECRET|Keycloak|keycloak",
+          "type": "regex",
+          "description": "Identifies auth-related variables"
+        }
+      ]
+    },
+    {
+      "name": "execution-plan",
+      "prompt": "what is the build order for partition test modules? which modules need to be installed first?",
+      "timeout": 120,
+      "pause_after": 3,
+      "assertions": [
+        {
+          "pattern": "test-core|install|mvn|maven|core",
+          "type": "regex",
+          "description": "Knows test-core must be built first"
+        }
+      ]
+    },
+    {
+      "name": "boundary-test",
+      "prompt": "what Postman smoke test collections are available for cimpl/lab?",
+      "timeout": 90,
+      "pause_after": 3,
+      "assertions": [
+        {
+          "pattern": "smoke|collection|newman|postman|qa|osdu-qa",
+          "type": "regex",
+          "description": "Boundary: routes to osdu-qa domain, not acceptance-test"
+        }
+      ]
+    }
+  ]
+}

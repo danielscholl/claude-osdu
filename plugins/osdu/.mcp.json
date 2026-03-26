@@ -1,0 +1,12 @@
+{
+  "mcpServers": {
+    "osdu-mcp-server": {
+      "command": "uvx",
+      "args": ["osdu-mcp-server"],
+      "env": {
+        "OSDU_MCP_SERVER_URL": "",
+        "OSDU_MCP_SERVER_DATA_PARTITION": ""
+      }
+    }
+  }
+}

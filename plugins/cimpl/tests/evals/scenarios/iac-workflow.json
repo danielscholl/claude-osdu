@@ -1,0 +1,64 @@
+{
+  "name": "iac-workflow",
+  "description": "Test consolidated iac skill — terraform patterns, debugging methodology, and verification",
+  "ready_pattern": "❯|\\$|>|claude",
+  "steps": [
+    {
+      "name": "terraform-pattern",
+      "prompt": "what is the correct way to use Azure Verified Modules for an AKS cluster in terraform?",
+      "timeout": 180,
+      "pause_after": 3,
+      "assertions": [
+        {
+          "pattern": "avm|Azure Verified Module|avm-res|terraform",
+          "type": "regex",
+          "description": "References AVM or Terraform patterns"
+        }
+      ]
+    },
+    {
+      "name": "safeguards-knowledge",
+      "prompt": "what are the AKS deployment safeguard requirements that my pods need to comply with?",
+      "timeout": 180,
+      "pause_after": 3,
+      "assertions": [
+        {
+          "pattern": "readinessProbe|livenessProbe|probe|resource.*request|seccomp",
+          "type": "regex",
+          "description": "Knows AKS safeguard requirements"
+        }
+      ]
+    },
+    {
+      "name": "debug-methodology",
+      "prompt": "my terraform apply failed with a resource already exists error, what should I do?",
+      "timeout": 180,
+      "pause_after": 3,
+      "assertions": [
+        {
+          "pattern": "terraform state|state list|import|investigate|evidence",
+          "type": "regex",
+          "description": "Suggests systematic investigation not quick fix"
+        },
+        {
+          "pattern": "just delete|just remove|quick fix",
+          "type": "not_contains",
+          "description": "Does NOT suggest destructive quick fixes"
+        }
+      ]
+    },
+    {
+      "name": "boundary-test",
+      "prompt": "how reliable are the partition service tests? are there flaky tests?",
+      "timeout": 180,
+      "pause_after": 3,
+      "assertions": [
+        {
+          "pattern": "osdu-quality|test.*reliab|flaky|pass rate",
+          "type": "regex",
+          "description": "Routes to quality domain (not iac)"
+        }
+      ]
+    }
+  ]
+}

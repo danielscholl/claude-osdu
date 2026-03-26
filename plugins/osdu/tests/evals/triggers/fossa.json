@@ -1,0 +1,77 @@
+{
+  "skill_name": "fossa",
+  "evals": [
+    {
+      "query": "the fossa-check-notice job is failing on my MR — fix the NOTICE file",
+      "should_trigger": true
+    },
+    {
+      "query": "fix the FOSSA NOTICE file from the failed pipeline",
+      "should_trigger": true
+    },
+    {
+      "query": "NOTICE file is out of date — fossa check is failing in CI",
+      "should_trigger": true
+    },
+    {
+      "query": "the pipeline failed on fossa-check-notice for MR !320",
+      "should_trigger": true
+    },
+    {
+      "query": "update the NOTICE file to fix the FOSSA compliance check",
+      "should_trigger": true
+    },
+    {
+      "query": "fossa failure — help me fix the attribution file",
+      "should_trigger": true
+    },
+    {
+      "query": "regenerate the NOTICE file for the storage service",
+      "should_trigger": true
+    },
+    {
+      "query": "FOSSA is complaining about missing attributions in my MR",
+      "should_trigger": true
+    },
+    {
+      "query": "check deps for partition — full analysis with risk scoring",
+      "should_trigger": false,
+      "note": "Dependency analysis → dependency-scan"
+    },
+    {
+      "query": "apply the dependency updates from the analysis report",
+      "should_trigger": false,
+      "note": "Remediation → remediate"
+    },
+    {
+      "query": "what merge requests are open across OSDU services?",
+      "should_trigger": false,
+      "note": "MR status → osdu-activity"
+    },
+    {
+      "query": "build the partition service with Maven",
+      "should_trigger": false,
+      "note": "Build execution → maven"
+    },
+    {
+      "query": "run the smoke tests on cimpl/lab",
+      "should_trigger": false,
+      "note": "Test execution → osdu-qa"
+    },
+    {
+      "query": "ship my changes and create the merge request",
+      "should_trigger": false,
+      "note": "Ship workflow → send"
+    },
+    {
+      "query": "review MR !320 and allow it to proceed",
+      "should_trigger": false,
+      "note": "Maintainer workflow → maintainer"
+    },
+    {
+      "query": "report on my environment health",
+      "should_trigger": false,
+      "note": "Environment health → health"
+    }
+  ]
+}

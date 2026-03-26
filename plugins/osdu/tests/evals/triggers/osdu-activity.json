@@ -1,0 +1,77 @@
+{
+  "skill_name": "osdu-activity",
+  "evals": [
+    {
+      "query": "what pipelines are currently failing across OSDU services?",
+      "should_trigger": true
+    },
+    {
+      "query": "show me all open merge requests for the storage and partition services",
+      "should_trigger": true
+    },
+    {
+      "query": "which OSDU services had failed CI jobs in the last 24 hours on the azure provider?",
+      "should_trigger": true
+    },
+    {
+      "query": "how is the M26 milestone looking? any services behind schedule?",
+      "should_trigger": true
+    },
+    {
+      "query": "are there any open issues tagged as critical across the OSDU platform?",
+      "should_trigger": true
+    },
+    {
+      "query": "give me a summary of CI pipeline status for all OSDU services — I want to know what's red",
+      "should_trigger": true
+    },
+    {
+      "query": "what MRs are waiting for review across the platform? I need to see if anything is stalled",
+      "should_trigger": true
+    },
+    {
+      "query": "show me failed jobs on the GCP cloud provider for the last week",
+      "should_trigger": true
+    },
+    {
+      "query": "how reliable are the partition service tests? are there flaky tests I should worry about?",
+      "should_trigger": false,
+      "note": "Test reliability → osdu-quality"
+    },
+    {
+      "query": "what's the pass rate for search API tests across all environments?",
+      "should_trigger": false,
+      "note": "Pass rates → osdu-quality"
+    },
+    {
+      "query": "who are the top contributors to OSDU this quarter? show me commit counts by person",
+      "should_trigger": false,
+      "note": "Contributors → osdu-engagement"
+    },
+    {
+      "query": "which teams are most active in reviewing merge requests?",
+      "should_trigger": false,
+      "note": "Review patterns → osdu-engagement"
+    },
+    {
+      "query": "create a merge request for my feature branch on the partition repo and assign alice as reviewer",
+      "should_trigger": false,
+      "note": "Single-repo MR creation → glab"
+    },
+    {
+      "query": "run the smoke tests on cimpl/lab and show me the results",
+      "should_trigger": false,
+      "note": "Test execution → osdu-qa"
+    },
+    {
+      "query": "fix the terraform policy violation in the infra module",
+      "should_trigger": false,
+      "note": "Infrastructure → cimpl"
+    },
+    {
+      "query": "check the dependencies for os-storage and find any CVEs",
+      "should_trigger": false,
+      "note": "Dependency analysis → dependency-scan/maven"
+    }
+  ]
+}

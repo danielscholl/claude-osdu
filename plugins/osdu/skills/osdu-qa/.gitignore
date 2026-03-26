@@ -1,0 +1,14 @@
+# Sensitive config (user-local, synced from GitLab)
+config/environments.json
+config/platform_credentials.json
+config/tokens/
+config/.active_env
+config/history.json
+config/manifest.json
+
+# Test results (generated per-session)
+results/
+
+# Python cache
+__pycache__/
+*.pyc

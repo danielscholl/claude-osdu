@@ -1,0 +1,85 @@
+{
+  "name": "routing-basic",
+  "description": "Verify basic routing accuracy — prompts go to the right agent/skill",
+  "ready_pattern": "❯|\\$|>|claude",
+  "steps": [
+    {
+      "name": "default-briefing",
+      "prompt": "what should I focus on today?",
+      "timeout": 90,
+      "pause_after": 3,
+      "assertions": [
+        {
+          "pattern": "goal|priority|focus|briefing",
+          "type": "regex",
+          "description": "Routes to default context (goal/priority talk)"
+        }
+      ]
+    },
+    {
+      "name": "infrastructure-routing",
+      "prompt": "what is the terraform pattern for handling a policy violation in the infra module?",
+      "timeout": 150,
+      "pause_after": 3,
+      "assertions": [
+        {
+          "pattern": "terraform|infra|policy|cimpl|iac",
+          "type": "regex",
+          "description": "Recognizes infrastructure domain"
+        }
+      ]
+    },
+    {
+      "name": "qa-routing",
+      "prompt": "what is the process for running smoke tests on the cimpl/lab environment?",
+      "timeout": 90,
+      "pause_after": 3,
+      "assertions": [
+        {
+          "pattern": "test|smoke|osdu-qa|qa-runner|cimpl/lab",
+          "type": "regex",
+          "description": "Recognizes QA testing domain"
+        }
+      ]
+    },
+    {
+      "name": "quick-fact",
+      "prompt": "what branch am I on?",
+      "timeout": 30,
+      "pause_after": 2,
+      "assertions": [
+        {
+          "pattern": "main|branch|git",
+          "type": "regex",
+          "description": "Answers directly without routing to agent"
+        }
+      ]
+    },
+    {
+      "name": "mr-review-routing",
+      "prompt": "can you review MR 845 on the search service and check if the pipeline is passing?",
+      "timeout": 150,
+      "pause_after": 3,
+      "assertions": [
+        {
+          "pattern": "review|MR|merge request|pipeline|diff|changes",
+          "type": "regex",
+          "description": "Routes to mr-review domain"
+        }
+      ]
+    },
+    {
+      "name": "contribute-routing",
+      "prompt": "I have test fixes ready, push them into the MR author's branch as a sub-MR",
+      "timeout": 150,
+      "pause_after": 3,
+      "assertions": [
+        {
+          "pattern": "branch|sub.MR|contribute|target|fork|push",
+          "type": "regex",
+          "description": "Routes to contribute domain"
+        }
+      ]
+    }
+  ]
+}

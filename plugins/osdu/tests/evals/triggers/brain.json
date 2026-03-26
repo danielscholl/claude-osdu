@@ -1,0 +1,77 @@
+{
+  "skill_name": "brain",
+  "evals": [
+    {
+      "query": "what did we decide about using CNPG vs Azure Postgres? I remember we made a decision on that",
+      "should_trigger": true
+    },
+    {
+      "query": "put this in the vault — we're going to use AVM modules for all new Terraform going forward",
+      "should_trigger": true
+    },
+    {
+      "query": "write up a QA report for the smoke test results we just ran on cimpl/lab",
+      "should_trigger": true
+    },
+    {
+      "query": "do I have any notes about the spring boot 3.2 migration issues?",
+      "should_trigger": true
+    },
+    {
+      "query": "log this as an incident — the storage service pipeline has been failing for 3 days due to elastic connectivity",
+      "should_trigger": true
+    },
+    {
+      "query": "what are my current goals for this quarter? how am I tracking?",
+      "should_trigger": true
+    },
+    {
+      "query": "remember this: the FOSSA NOTICE file issue is caused by a missing attribution for the azure-storage-blob library",
+      "should_trigger": true
+    },
+    {
+      "query": "search the vault for anything related to partition service architecture",
+      "should_trigger": true
+    },
+    {
+      "query": "what pipelines are failing across OSDU services right now?",
+      "should_trigger": false,
+      "note": "Pipeline status → osdu-activity"
+    },
+    {
+      "query": "run the smoke tests on cimpl/lab and show me the pass rate",
+      "should_trigger": false,
+      "note": "Test execution → osdu-qa"
+    },
+    {
+      "query": "add a readiness probe to the partition helm chart to pass AKS safeguards",
+      "should_trigger": false,
+      "note": "Infrastructure → iac"
+    },
+    {
+      "query": "check the dependencies for os-storage and find any critical CVEs",
+      "should_trigger": false,
+      "note": "Dependencies → dependency-scan"
+    },
+    {
+      "query": "what is the correct glab command to leave a comment on a merge request?",
+      "should_trigger": false,
+      "note": "GitLab CLI → glab"
+    },
+    {
+      "query": "who are the top contributors to OSDU this quarter?",
+      "should_trigger": false,
+      "note": "Contributors → osdu-engagement"
+    },
+    {
+      "query": "how reliable are the partition service tests? any flaky ones?",
+      "should_trigger": false,
+      "note": "Test reliability → osdu-quality"
+    },
+    {
+      "query": "I'm done with my changes, ship it and create the merge request",
+      "should_trigger": false,
+      "note": "Ship workflow → send"
+    }
+  ]
+}

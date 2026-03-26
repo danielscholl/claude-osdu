@@ -1,0 +1,46 @@
+{
+  "name": "osdu-engagement-workflow",
+  "description": "Test osdu-engagement skill \u2014 contributor analysis, review patterns, team engagement",
+  "ready_pattern": "\u276f|\\$|>|claude",
+  "steps": [
+    {
+      "name": "top-contributors",
+      "prompt": "who are the top contributors to OSDU this quarter?",
+      "timeout": 240,
+      "pause_after": 3,
+      "assertions": [
+        {
+          "pattern": "contributor|commit|author|MR|merge request|review",
+          "type": "regex",
+          "description": "Discusses contribution metrics"
+        }
+      ]
+    },
+    {
+      "name": "review-patterns",
+      "prompt": "who has the most code reviews in OSDU?",
+      "timeout": 300,
+      "pause_after": 5,
+      "assertions": [
+        {
+          "pattern": "review|reviewer|approvals|bottleneck",
+          "type": "regex",
+          "description": "Discusses review metrics"
+        }
+      ]
+    },
+    {
+      "name": "boundary-test",
+      "prompt": "what's the pipeline status for the partition service?",
+      "timeout": 180,
+      "pause_after": 3,
+      "assertions": [
+        {
+          "pattern": "osdu-activity|pipeline|CI|status",
+          "type": "regex",
+          "description": "Routes to osdu-activity for pipeline status (not engagement)"
+        }
+      ]
+    }
+  ]
+}

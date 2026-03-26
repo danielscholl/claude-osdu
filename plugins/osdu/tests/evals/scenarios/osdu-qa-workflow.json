@@ -1,0 +1,59 @@
+{
+  "name": "osdu-qa-workflow",
+  "description": "Test QA skill activation for test execution, failure analysis, and environment comparison",
+  "ready_pattern": "❯|\\$|>|claude",
+  "steps": [
+    {
+      "name": "list-collections",
+      "prompt": "what test collections are available for OSDU QA testing?",
+      "timeout": 120,
+      "pause_after": 3,
+      "assertions": [
+        {
+          "pattern": "smoke|legal|storage|entitlements|collection",
+          "type": "regex",
+          "description": "Lists available test collections"
+        }
+      ]
+    },
+    {
+      "name": "check-environment",
+      "prompt": "check if the cimpl/lab environment is healthy and ready for testing",
+      "timeout": 120,
+      "pause_after": 3,
+      "assertions": [
+        {
+          "pattern": "health|cimpl/lab|environment|ready|status",
+          "type": "regex",
+          "description": "Checks environment health before testing"
+        }
+      ]
+    },
+    {
+      "name": "analyze-failures",
+      "prompt": "the storage tests are showing 24% pass rate — what's causing the failures?",
+      "timeout": 120,
+      "pause_after": 3,
+      "assertions": [
+        {
+          "pattern": "cascad|primary|root cause|failure|legal tag|depend",
+          "type": "regex",
+          "description": "Analyzes failure patterns and identifies root causes"
+        }
+      ]
+    },
+    {
+      "name": "boundary-test",
+      "prompt": "what terraform modules are we using for the AKS cluster?",
+      "timeout": 120,
+      "pause_after": 3,
+      "assertions": [
+        {
+          "pattern": "terraform|AVM|module|azurerm|infrastructure",
+          "type": "regex",
+          "description": "Boundary: routes to iac domain, not QA"
+        }
+      ]
+    }
+  ]
+}

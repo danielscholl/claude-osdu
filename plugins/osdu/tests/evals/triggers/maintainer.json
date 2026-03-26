@@ -1,0 +1,87 @@
+{
+  "skill_name": "maintainer",
+  "evals": [
+    {
+      "query": "allow MR !320 for entitlements to proceed through the trusted branch",
+      "should_trigger": true
+    },
+    {
+      "query": "allow the MR for partition — sync the trusted branch",
+      "should_trigger": true
+    },
+    {
+      "query": "the child pipeline won't run on MR !456 — the trusted branch needs syncing",
+      "should_trigger": true
+    },
+    {
+      "query": "approve and allow this merge request through the trusted branch workflow",
+      "should_trigger": true
+    },
+    {
+      "query": "review MR 845 and tell me if the code is sound and the pipeline passes",
+      "should_trigger": false,
+      "note": "Code review + pipeline analysis -> mr-review"
+    },
+    {
+      "query": "push my test fixes into their MR as a sub-MR",
+      "should_trigger": false,
+      "note": "Contributing to MR -> contribute"
+    },
+    {
+      "query": "trigger the trusted tests for the storage MR",
+      "should_trigger": true
+    },
+    {
+      "query": "MR !789 is waiting for trusted branch sync — can you handle that?",
+      "should_trigger": true
+    },
+    {
+      "query": "allow MR — sync trusted branch for the legal service MR",
+      "should_trigger": true
+    },
+    {
+      "query": "review the entitlements MR and push to the trusted branch so CI can run",
+      "should_trigger": true
+    },
+    {
+      "query": "what merge requests are open across OSDU services?",
+      "should_trigger": false,
+      "note": "MR status → osdu-activity"
+    },
+    {
+      "query": "how do I create a merge request with glab?",
+      "should_trigger": false,
+      "note": "GitLab CLI → glab"
+    },
+    {
+      "query": "ship my changes and create the merge request",
+      "should_trigger": false,
+      "note": "Ship workflow → send"
+    },
+    {
+      "query": "run the smoke tests on cimpl/lab",
+      "should_trigger": false,
+      "note": "Test execution → osdu-qa"
+    },
+    {
+      "query": "check deps for partition",
+      "should_trigger": false,
+      "note": "Dependency analysis → dependency-scan"
+    },
+    {
+      "query": "fix the FOSSA NOTICE file from the failed pipeline",
+      "should_trigger": false,
+      "note": "FOSSA fix → fossa"
+    },
+    {
+      "query": "who are the top contributors to OSDU this quarter?",
+      "should_trigger": false,
+      "note": "Contributors → osdu-engagement"
+    },
+    {
+      "query": "add a readiness probe to the helm chart",
+      "should_trigger": false,
+      "note": "Infrastructure → iac"
+    }
+  ]
+}

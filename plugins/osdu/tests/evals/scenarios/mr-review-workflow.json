@@ -1,0 +1,90 @@
+{
+  "name": "mr-review-workflow",
+  "description": "Test mr-review skill — fetches MR diff, analyzes code, diagnoses pipeline failures, drafts a comment",
+  "ready_pattern": "❯|\\$|>|claude",
+  "steps": [
+    {
+      "name": "review-trigger",
+      "prompt": "can you review this merge request and tell me if it's ready to merge? https://community.opengroup.org/osdu/platform/system/search-service/-/merge_requests/845",
+      "timeout": 180,
+      "pause_after": 3,
+      "assertions": [
+        {
+          "pattern": "search.service|merge.request|MR.*845|diff|review",
+          "type": "regex",
+          "description": "Identifies the MR and starts the review"
+        }
+      ]
+    },
+    {
+      "name": "pipeline-analysis",
+      "prompt": "did the pipeline pass? what's blocking it?",
+      "timeout": 180,
+      "pause_after": 3,
+      "assertions": [
+        {
+          "pattern": "pipeline|job|coverage|fail|pass",
+          "type": "regex",
+          "description": "Analyzes pipeline status and identifies failures"
+        }
+      ]
+    },
+    {
+      "name": "failure-classification",
+      "prompt": "which failures are caused by the MR and which are environment issues?",
+      "timeout": 180,
+      "pause_after": 3,
+      "assertions": [
+        {
+          "pattern": "environment|infra|MR.caused|pre.existing|blocker|unrelated",
+          "type": "regex",
+          "description": "Classifies failures as MR-caused vs environment"
+        }
+      ]
+    },
+    {
+      "name": "verdict",
+      "prompt": "what's your overall verdict on this MR?",
+      "timeout": 120,
+      "pause_after": 3,
+      "assertions": [
+        {
+          "pattern": "approve|needs.work|blocked|merge",
+          "type": "regex",
+          "description": "Provides a clear verdict recommendation"
+        }
+      ]
+    },
+    {
+      "name": "comment-draft",
+      "prompt": "draft a review comment I can post on this MR",
+      "timeout": 120,
+      "pause_after": 3,
+      "assertions": [
+        {
+          "pattern": "pipeline|coverage|blocker|fix",
+          "type": "regex",
+          "description": "Drafts a substantive comment referencing key findings"
+        },
+        {
+          "pattern": "Great work|Well done|Nice MR",
+          "type": "not_contains",
+          "description": "Does NOT use AI praise openers"
+        }
+      ]
+    },
+    {
+      "name": "boundary-test",
+      "prompt": "ship my local changes and create a new MR",
+      "timeout": 120,
+      "pause_after": 3,
+      "assertions": [
+        {
+          "pattern": "send|ship|commit|push|branch",
+          "type": "regex",
+          "description": "Routes to send workflow (not mr-review)"
+        }
+      ]
+    }
+  ]
+}

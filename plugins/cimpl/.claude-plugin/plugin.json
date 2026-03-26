@@ -1,0 +1,22 @@
+{
+  "name": "cimpl",
+  "version": "0.1.0",
+  "description": "Azure infrastructure as code — Terraform, Helm, AKS, and environment provisioning for OSDU Community Implementation deployments",
+  "author": {
+    "name": "Daniel Scholl",
+    "email": "daniel.scholl@microsoft.com"
+  },
+  "license": "Apache-2.0",
+  "keywords": [
+    "osdu",
+    "azure",
+    "terraform",
+    "helm",
+    "aks",
+    "infrastructure"
+  ],
+  "repository": "https://community.opengroup.org/danielscholl/claude-osdu",
+  "agents": [
+    "./agents/cimpl.md"
+  ]
+}

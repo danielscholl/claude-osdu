@@ -1,0 +1,77 @@
+{
+  "skill_name": "learn",
+  "evals": [
+    {
+      "query": "learn about the OSDU platform — pull in the wiki docs",
+      "should_trigger": true
+    },
+    {
+      "query": "study the OSDU governance wiki and create knowledge notes",
+      "should_trigger": true
+    },
+    {
+      "query": "absorb the architecture documentation from the platform group wiki",
+      "should_trigger": true
+    },
+    {
+      "query": "index the PMC wiki pages into the vault",
+      "should_trigger": true
+    },
+    {
+      "query": "pull in the docs for the storage service API from the GitLab wiki",
+      "should_trigger": true
+    },
+    {
+      "query": "read this URL and create a knowledge note in the vault from it",
+      "should_trigger": true
+    },
+    {
+      "query": "populate the vault with reference material about OSDU release strategy",
+      "should_trigger": true
+    },
+    {
+      "query": "refresh the OSDU knowledge notes — they might be stale",
+      "should_trigger": true
+    },
+    {
+      "query": "put this in the vault — we decided to use AVM modules for all new Terraform",
+      "should_trigger": false,
+      "note": "Vault write → brain"
+    },
+    {
+      "query": "search the vault for anything about partition service architecture",
+      "should_trigger": false,
+      "note": "Vault search → brain"
+    },
+    {
+      "query": "scan the vault for stale notes and contradictions",
+      "should_trigger": false,
+      "note": "Vault maintenance → consolidate"
+    },
+    {
+      "query": "good morning — give me my daily briefing",
+      "should_trigger": false,
+      "note": "Daily briefing → briefing"
+    },
+    {
+      "query": "what pipelines are failing across OSDU services?",
+      "should_trigger": false,
+      "note": "Pipeline status → osdu-activity"
+    },
+    {
+      "query": "run the smoke tests on cimpl/lab",
+      "should_trigger": false,
+      "note": "Test execution → osdu-qa"
+    },
+    {
+      "query": "check the dependencies for storage service",
+      "should_trigger": false,
+      "note": "Dependency analysis → dependency-scan"
+    },
+    {
+      "query": "ship my changes and create the merge request",
+      "should_trigger": false,
+      "note": "Ship workflow → send"
+    }
+  ]
+}

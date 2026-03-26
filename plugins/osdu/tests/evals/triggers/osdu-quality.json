@@ -1,0 +1,85 @@
+{
+  "skill_name": "osdu-quality",
+  "evals": [
+    {
+      "query": "how reliable are the partition service tests? I keep seeing intermittent failures",
+      "should_trigger": true
+    },
+    {
+      "query": "are there any flaky tests in the OSDU platform CI? I want to see which ones are unreliable",
+      "should_trigger": true
+    },
+    {
+      "query": "what's the test pass rate for the storage service across all cloud providers?",
+      "should_trigger": true
+    },
+    {
+      "query": "show me the CI quality metrics for search — I suspect the tests are degrading",
+      "should_trigger": true
+    },
+    {
+      "query": "which OSDU test suites have pass rates below 90%? I need to flag them for the team",
+      "should_trigger": true
+    },
+    {
+      "query": "give me a breakdown of test reliability by cloud provider — azure vs gcp vs aws",
+      "should_trigger": true
+    },
+    {
+      "query": "the legal tests keep flapping between pass and fail, can you analyze the pattern?",
+      "should_trigger": true
+    },
+    {
+      "query": "how healthy are the OSDU pipeline tests overall? I want a quality summary",
+      "should_trigger": true
+    },
+    {
+      "query": "what acceptance test gaps does partition have between cimpl and the azure integration tests?",
+      "should_trigger": true
+    },
+    {
+      "query": "generate a parity report for storage — what does azure test that cimpl doesn't?",
+      "should_trigger": true
+    },
+    {
+      "query": "what pipelines are failing across OSDU services right now?",
+      "should_trigger": false,
+      "note": "Pipeline status → osdu-activity"
+    },
+    {
+      "query": "show me all open merge requests for the partition and storage services",
+      "should_trigger": false,
+      "note": "Open MRs → osdu-activity"
+    },
+    {
+      "query": "who are the top contributors to OSDU this month?",
+      "should_trigger": false,
+      "note": "Contributors → osdu-engagement"
+    },
+    {
+      "query": "how many ADRs have been reviewed by each team member?",
+      "should_trigger": false,
+      "note": "ADR engagement → osdu-engagement"
+    },
+    {
+      "query": "run the smoke tests on cimpl/lab and let me know if anything fails",
+      "should_trigger": false,
+      "note": "Test execution → osdu-qa"
+    },
+    {
+      "query": "create a merge request for my branch with alice and bob as reviewers",
+      "should_trigger": false,
+      "note": "Single-repo MR → glab"
+    },
+    {
+      "query": "add a readiness probe to the partition Helm chart",
+      "should_trigger": false,
+      "note": "Infrastructure → cimpl"
+    },
+    {
+      "query": "run the partition acceptance tests against my cimpl environment",
+      "should_trigger": false,
+      "note": "Running tests locally → acceptance-test"
+    }
+  ]
+}

@@ -1,0 +1,39 @@
+# Ignore everything — user content is private
+*
+
+# But keep the scaffold structure:
+
+# This file
+!.gitignore
+
+# Obsidian config (vault settings are shared)
+!.obsidian/
+!.obsidian/**
+
+# But exclude user-specific Obsidian state
+.obsidian/workspace.json
+.obsidian/workspace-mobile.json
+
+# Templates (shared scaffold)
+!templates/
+!templates/**
+
+# Inbox (includes Welcome note; daily notes also go here)
+!00-inbox/
+!00-inbox/Welcome.md
+!00-inbox/.gitkeep
+
+# Empty directories need a placeholder to survive git
+# (git doesn't track empty dirs, so keep .gitkeep files)
+!01-goals/
+!01-goals/.gitkeep
+!02-projects/
+!02-projects/.gitkeep
+!03-knowledge/
+!03-knowledge/.gitkeep
+!03-knowledge/decisions/
+!03-knowledge/decisions/.gitkeep
+!04-reports/
+!04-reports/.gitkeep
+!attachments/
+!attachments/.gitkeep

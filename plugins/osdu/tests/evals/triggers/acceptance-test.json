@@ -1,0 +1,86 @@
+{
+  "skill_name": "acceptance-test",
+  "evals": [
+    {
+      "query": "run the acceptance tests for the partition service against my environment",
+      "should_trigger": true
+    },
+    {
+      "query": "test the storage service against my deployed cimpl environment",
+      "should_trigger": true
+    },
+    {
+      "query": "execute the integration tests for legal service against live endpoints",
+      "should_trigger": true
+    },
+    {
+      "query": "verify the search service works by running its acceptance test suite",
+      "should_trigger": true
+    },
+    {
+      "query": "run partition-test-azure against my cimpl environment",
+      "should_trigger": true
+    },
+    {
+      "query": "I want to run the Java acceptance tests for entitlements to make sure it works",
+      "should_trigger": true
+    },
+    {
+      "query": "can you run the e2e tests for the schema service using my environment config?",
+      "should_trigger": true
+    },
+    {
+      "query": "acceptance test the file service — I need to confirm it's working after the upgrade",
+      "should_trigger": true
+    },
+    {
+      "query": "run acceptance tests for both partition and storage services",
+      "should_trigger": true
+    },
+    {
+      "query": "run the smoke tests on cimpl/lab using the Postman collections",
+      "should_trigger": false,
+      "note": "Newman/Postman collections → osdu-qa"
+    },
+    {
+      "query": "build the partition service and run unit tests",
+      "should_trigger": false,
+      "note": "Build/compile + unit tests → build-runner"
+    },
+    {
+      "query": "check the health of my deployed environment — are all services up?",
+      "should_trigger": false,
+      "note": "Environment health → health"
+    },
+    {
+      "query": "how reliable are the partition tests? which ones are flaky?",
+      "should_trigger": false,
+      "note": "Test reliability analysis → osdu-quality"
+    },
+    {
+      "query": "what acceptance test gaps does partition have between cimpl and azure?",
+      "should_trigger": false,
+      "note": "Test parity analysis → osdu-quality"
+    },
+    {
+      "query": "generate a parity report showing what cimpl is missing compared to the azure integration tests",
+      "should_trigger": false,
+      "note": "Coverage gap report → osdu-quality"
+    },
+    {
+      "query": "what pipelines are currently failing across OSDU services?",
+      "should_trigger": false,
+      "note": "Pipeline status → osdu-activity"
+    },
+    {
+      "query": "compare the QA test results between the qa and temp environments",
+      "should_trigger": false,
+      "note": "Environment comparison → osdu-qa / qa-comparator"
+    },
+    {
+      "query": "ship my partition changes and create the merge request",
+      "should_trigger": false,
+      "note": "Ship workflow → send"
+    }
+  ]
+}

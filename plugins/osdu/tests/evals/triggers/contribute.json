@@ -1,0 +1,107 @@
+{
+  "skill_name": "contribute",
+  "evals": [
+    {
+      "query": "contribute these test fixes to MR 845",
+      "should_trigger": true
+    },
+    {
+      "query": "push this into their merge request branch as a sub-MR",
+      "should_trigger": true
+    },
+    {
+      "query": "I've written tests to fix the coverage gap on MR !845, create a sub-MR targeting their branch",
+      "should_trigger": true
+    },
+    {
+      "query": "help with MR 320 by pushing my local changes into it",
+      "should_trigger": true
+    },
+    {
+      "query": "send these changes to the elastic-client-scope branch to help their MR",
+      "should_trigger": true
+    },
+    {
+      "query": "I made fixes on someone else's branch, submit them as a contribution MR",
+      "should_trigger": true
+    },
+    {
+      "query": "create an MR targeting the source branch of MR !845 with my coverage improvements",
+      "should_trigger": true
+    },
+    {
+      "query": "push my changes and post a comment on the parent MR explaining what I added",
+      "should_trigger": true
+    },
+    {
+      "query": "I fixed the coverage gap on MR 845, push my changes to their branch",
+      "should_trigger": true,
+      "note": "Fix + push to their branch"
+    },
+    {
+      "query": "add my test improvements to this MR as a sub-MR",
+      "should_trigger": true,
+      "note": "Add to MR framing"
+    },
+    {
+      "query": "open a sub-MR for MR !320 with my dependency fix",
+      "should_trigger": true,
+      "note": "Explicit sub-MR request"
+    },
+    {
+      "query": "ship it, I'm done with my feature work",
+      "should_trigger": false,
+      "note": "Shipping own work -> send"
+    },
+    {
+      "query": "review MR 845 on search-service and tell me if it's ready",
+      "should_trigger": false,
+      "note": "Reviewing an MR -> mr-review"
+    },
+    {
+      "query": "allow MR !320 by syncing the trusted branch",
+      "should_trigger": false,
+      "note": "Trusted branch sync -> maintainer"
+    },
+    {
+      "query": "what merge requests are currently open for me?",
+      "should_trigger": false,
+      "note": "Listing MRs -> osdu-activity"
+    },
+    {
+      "query": "how do I add a comment to a merge request using glab?",
+      "should_trigger": false,
+      "note": "glab CLI help -> glab"
+    },
+    {
+      "query": "build the partition service with maven",
+      "should_trigger": false,
+      "note": "Build execution -> maven/build-runner"
+    },
+    {
+      "query": "check the dependencies for partition and find any CVEs",
+      "should_trigger": false,
+      "note": "Dependencies -> dependency-scan"
+    },
+    {
+      "query": "what should I focus on today?",
+      "should_trigger": false,
+      "note": "Briefing -> default context"
+    },
+    {
+      "query": "I fixed the coverage issue, send it up as a new MR targeting dev",
+      "should_trigger": false,
+      "note": "New MR targeting dev, not sub-MR -> send"
+    },
+    {
+      "query": "contribute to the OSDU project by adding a new feature",
+      "should_trigger": false,
+      "note": "General contribution, not sub-MR workflow -> send"
+    },
+    {
+      "query": "push my changes and create an MR targeting master",
+      "should_trigger": false,
+      "note": "Targeting main branch, not someone's MR branch -> send"
+    }
+  ]
+}

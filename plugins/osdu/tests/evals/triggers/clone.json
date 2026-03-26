@@ -1,0 +1,81 @@
+{
+  "skill_name": "clone",
+  "evals": [
+    {
+      "query": "clone the partition service into the workspace",
+      "should_trigger": true
+    },
+    {
+      "query": "get me the storage repo — clone it so I can work on it",
+      "should_trigger": true
+    },
+    {
+      "query": "clone all the core OSDU services",
+      "should_trigger": true
+    },
+    {
+      "query": "checkout the entitlements repo into the OSDU workspace",
+      "should_trigger": true
+    },
+    {
+      "query": "clone the system category repos — partition, storage, indexer, search",
+      "should_trigger": true
+    },
+    {
+      "query": "set up the OSDU workspace with the core service repos",
+      "should_trigger": true
+    },
+    {
+      "query": "I need the legal service repo cloned locally",
+      "should_trigger": true
+    },
+    {
+      "query": "clone search-service and schema-service into the workspace",
+      "should_trigger": true
+    },
+    {
+      "query": "clone cimpl-azure-provisioning so I can work on the infrastructure",
+      "should_trigger": true
+    },
+    {
+      "query": "setup — check what CLI tools I need installed",
+      "should_trigger": false,
+      "note": "Tool check → setup"
+    },
+    {
+      "query": "build the partition service with Maven",
+      "should_trigger": false,
+      "note": "Build execution → maven"
+    },
+    {
+      "query": "what merge requests are open across OSDU services?",
+      "should_trigger": false,
+      "note": "MR status → osdu-activity"
+    },
+    {
+      "query": "run the smoke tests on cimpl/lab",
+      "should_trigger": false,
+      "note": "Test execution → osdu-qa"
+    },
+    {
+      "query": "check the dependencies for storage service",
+      "should_trigger": false,
+      "note": "Dependency analysis → dependency-scan"
+    },
+    {
+      "query": "add a readiness probe to the helm chart",
+      "should_trigger": false,
+      "note": "Infrastructure → iac"
+    },
+    {
+      "query": "ship my changes and create the merge request",
+      "should_trigger": false,
+      "note": "Ship workflow → send"
+    },
+    {
+      "query": "learn about the OSDU platform from the wiki",
+      "should_trigger": false,
+      "note": "Knowledge acquisition → learn"
+    }
+  ]
+}

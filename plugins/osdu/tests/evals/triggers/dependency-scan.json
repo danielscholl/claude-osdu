@@ -1,0 +1,77 @@
+{
+  "skill_name": "dependency-scan",
+  "evals": [
+    {
+      "query": "check deps for partition — full analysis with risk scoring and remediation plan",
+      "should_trigger": true
+    },
+    {
+      "query": "run a full dependency analysis on storage service with a risk-scored report",
+      "should_trigger": true
+    },
+    {
+      "query": "generate a dependency remediation report for the indexer service",
+      "should_trigger": true
+    },
+    {
+      "query": "analyze all dependencies for os-core-common and create an actionable report",
+      "should_trigger": true
+    },
+    {
+      "query": "I need a comprehensive dependency audit with risk scores for the legal service",
+      "should_trigger": true
+    },
+    {
+      "query": "scan partition for all dependency updates, not just vulnerable ones",
+      "should_trigger": true
+    },
+    {
+      "query": "produce a dependency management report with version recommendations for search service",
+      "should_trigger": true
+    },
+    {
+      "query": "check all project dependencies and create a risk-scored update plan",
+      "should_trigger": true
+    },
+    {
+      "query": "what version of spring-core is available on Maven Central?",
+      "should_trigger": false,
+      "note": "Single version lookup → dependency-scan"
+    },
+    {
+      "query": "apply the dependency updates from the report — fix the low risk ones first",
+      "should_trigger": false,
+      "note": "Remediation execution → remediate"
+    },
+    {
+      "query": "run the smoke tests on cimpl/lab",
+      "should_trigger": false,
+      "note": "Test execution → osdu-qa"
+    },
+    {
+      "query": "what pipelines are failing across OSDU services?",
+      "should_trigger": false,
+      "note": "Pipeline status → osdu-activity"
+    },
+    {
+      "query": "add a readiness probe to the helm chart",
+      "should_trigger": false,
+      "note": "Infrastructure → iac"
+    },
+    {
+      "query": "fix the FOSSA NOTICE file from the failed pipeline",
+      "should_trigger": false,
+      "note": "FOSSA fix → fossa"
+    },
+    {
+      "query": "build partition with Maven and run unit tests",
+      "should_trigger": false,
+      "note": "Build execution → maven/build-runner"
+    },
+    {
+      "query": "ship my changes and create the merge request",
+      "should_trigger": false,
+      "note": "Ship workflow → send"
+    }
+  ]
+}

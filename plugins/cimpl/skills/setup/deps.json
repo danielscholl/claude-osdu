@@ -1,0 +1,175 @@
+{
+  "tiers": {
+    "core": "Required by plugin scripts and test framework",
+    "infrastructure": "Required by iac and health skills",
+    "platform": "Required by glab, send, osdu-*, briefing, and fossa skills",
+    "build": "Required by maven, dependencies, dependency-scan, and remediate skills",
+    "knowledge": "Required by brain skill (node runtime)",
+    "qa": "Required by osdu-qa skill (API test execution)"
+  },
+  "tools": {
+    "git": {
+      "check": "git --version",
+      "tier": "core",
+      "required_by": ["clone", "maintainer", "send"],
+      "install": {
+        "darwin": "xcode-select --install",
+        "linux": "apt install -y git"
+      }
+    },
+    "python3": {
+      "check": "python3 --version || python --version",
+      "tier": "core",
+      "required_by": ["briefing", "consolidate", "dependencies", "maven"],
+      "install": {
+        "darwin": "brew install python@3.11",
+        "linux": "apt install -y python3",
+        "*": "winget install Python.Python.3.11"
+      }
+    },
+    "uv": {
+      "check": "uv --version",
+      "tier": "core",
+      "required_by": ["briefing", "dependencies", "maven"],
+      "install": {
+        "*": "curl -LsSf https://astral.sh/uv/install.sh | sh"
+      }
+    },
+    "terraform": {
+      "check": "terraform --version",
+      "tier": "infrastructure",
+      "required_by": ["iac"],
+      "install": {
+        "darwin": "brew install terraform",
+        "linux": "brew install terraform"
+      }
+    },
+    "helm": {
+      "check": "helm version --short",
+      "tier": "infrastructure",
+      "required_by": ["iac", "health"],
+      "install": {
+        "darwin": "brew install helm",
+        "linux": "brew install helm"
+      }
+    },
+    "kubectl": {
+      "check": "kubectl version --client",
+      "tier": "infrastructure",
+      "required_by": ["iac", "health"],
+      "install": {
+        "darwin": "brew install kubectl",
+        "linux": "brew install kubectl"
+      }
+    },
+    "kustomize": {
+      "check": "kustomize version",
+      "tier": "infrastructure",
+      "required_by": ["iac"],
+      "install": {
+        "darwin": "brew install kustomize",
+        "linux": "brew install kustomize"
+      }
+    },
+    "az": {
+      "check": "az version",
+      "tier": "platform",
+      "required_by": ["health"],
+      "install": {
+        "darwin": "brew install azure-cli",
+        "linux": "curl -sL https://aka.ms/InstallAzureCLIDeb | sudo bash",
+        "*": "winget install Microsoft.AzureCLI"
+      }
+    },
+    "azd": {
+      "check": "azd version",
+      "tier": "platform",
+      "required_by": ["iac", "health"],
+      "install": {
+        "darwin": "brew install azure/azd/azd",
+        "linux": "curl -fsSL https://aka.ms/install-azd.sh | bash",
+        "*": "winget install microsoft.azd"
+      }
+    },
+    "glab": {
+      "check": "glab --version",
+      "tier": "platform",
+      "required_by": ["glab", "fossa", "learn", "maintainer", "send"],
+      "install": {
+        "darwin": "brew install glab",
+        "linux": "brew install glab"
+      }
+    },
+    "osdu-activity": {
+      "check": "osdu-activity --version",
+      "tier": "platform",
+      "required_by": ["osdu-activity", "briefing"],
+      "install": {
+        "*": "uv tool install osdu-activity --index-url https://community.opengroup.org/api/v4/projects/1629/packages/pypi/simple"
+      }
+    },
+    "osdu-quality": {
+      "check": "osdu-quality --version",
+      "tier": "platform",
+      "required_by": ["osdu-quality"],
+      "install": {
+        "*": "uv tool install osdu-quality --index-url https://community.opengroup.org/api/v4/projects/1630/packages/pypi/simple"
+      }
+    },
+    "osdu-engagement": {
+      "check": "osdu-engagement --version",
+      "tier": "platform",
+      "required_by": ["osdu-engagement"],
+      "install": {
+        "*": "uv tool install osdu-engagement --index-url https://community.opengroup.org/api/v4/projects/1631/packages/pypi/simple"
+      }
+    },
+    "java": {
+      "check": "java --version",
+      "tier": "build",
+      "required_by": ["maven", "build-runner"],
+      "install": {
+        "darwin": "brew install openjdk@17",
+        "linux": "apt install -y openjdk-17-jdk",
+        "*": "winget install Microsoft.OpenJDK.17"
+      }
+    },
+    "mvn": {
+      "check": "mvn --version",
+      "tier": "build",
+      "required_by": ["maven", "dependencies", "dependency-scan", "remediate", "build-runner"],
+      "install": {
+        "darwin": "brew install maven",
+        "linux": "apt install -y maven",
+        "*": "Download from https://maven.apache.org/download.cgi — extract to C:\\tools and add bin to PATH"
+      }
+    },
+    "trivy": {
+      "check": "trivy --version",
+      "tier": "build",
+      "required_by": ["maven", "dependencies", "dependency-scan"],
+      "install": {
+        "darwin": "brew install trivy",
+        "linux": "curl -sfL https://raw.githubusercontent.com/aquasecurity/trivy/main/contrib/install.sh | sh -s -- -b /usr/local/bin",
+        "*": "winget install aquasecurity.trivy"
+      }
+    },
+    "node": {
+      "check": "node --version",
+      "tier": "knowledge",
+      "required_by": ["brain"],
+      "install": {
+        "darwin": "brew install node",
+        "linux": "brew install node"
+      }
+    },
+    "newman": {
+      "check": "newman --version",
+      "tier": "qa",
+      "required_by": ["osdu-qa"],
+      "install": {
+        "*": "npm install -g newman"
+      }
+    }
+  }
+}

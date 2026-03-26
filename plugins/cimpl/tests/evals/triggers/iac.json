@@ -1,0 +1,77 @@
+{
+  "skill_name": "iac",
+  "evals": [
+    {
+      "query": "I need to add an AKS cluster using Azure Verified Modules in our terraform config",
+      "should_trigger": true
+    },
+    {
+      "query": "the helm release for cert-manager is failing with an admission webhook error on our AKS cluster",
+      "should_trigger": true
+    },
+    {
+      "query": "how do I set up the postrender kustomize pattern so our helm charts pass AKS safeguards?",
+      "should_trigger": true
+    },
+    {
+      "query": "terraform plan shows a resource already exists error for the storage account, how do I fix this?",
+      "should_trigger": true
+    },
+    {
+      "query": "what's the correct way to configure azd with terraform for a remote state backend in Azure?",
+      "should_trigger": true
+    },
+    {
+      "query": "pods are stuck in Pending after deployment and I see constraint violations in kubectl",
+      "should_trigger": true
+    },
+    {
+      "query": "how do I verify that my infrastructure deployment is actually complete and healthy before creating the PR?",
+      "should_trigger": true
+    },
+    {
+      "query": "I need to add a readiness probe and resource requests to pass AKS deployment safeguards",
+      "should_trigger": true
+    },
+    {
+      "query": "run the smoke tests on cimpl/lab and compare with cimpl/qa results",
+      "should_trigger": false,
+      "note": "QA test execution → osdu-qa"
+    },
+    {
+      "query": "what merge requests are open across OSDU services?",
+      "should_trigger": false,
+      "note": "Platform MRs → osdu-activity"
+    },
+    {
+      "query": "check the dependencies for os-storage and find critical CVEs",
+      "should_trigger": false,
+      "note": "Dependency analysis → dependencies"
+    },
+    {
+      "query": "who are the top contributors to OSDU this quarter?",
+      "should_trigger": false,
+      "note": "Contributors → osdu-engagement"
+    },
+    {
+      "query": "how do I create a merge request with glab and assign reviewers?",
+      "should_trigger": false,
+      "note": "GitLab CLI → glab"
+    },
+    {
+      "query": "build the partition service with maven and run unit tests",
+      "should_trigger": false,
+      "note": "Java builds → maven"
+    },
+    {
+      "query": "what's the pass rate for the search API tests across cloud providers?",
+      "should_trigger": false,
+      "note": "Test reliability → osdu-quality"
+    },
+    {
+      "query": "search for well records in the OSDU platform with kind osdu:wks:master-data",
+      "should_trigger": false,
+      "note": "Platform data → osdu MCP"
+    }
+  ]
+}

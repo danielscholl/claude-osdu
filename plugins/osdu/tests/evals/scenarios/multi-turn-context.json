@@ -1,0 +1,46 @@
+{
+  "name": "multi-turn-context",
+  "description": "Test that context carries across prompts — environment setting persists, follow-up questions work",
+  "ready_pattern": "❯|\\$|>|claude",
+  "steps": [
+    {
+      "name": "set-context",
+      "prompt": "I'm working on the OSDU partition service today, the repo is cloned in the workspace",
+      "timeout": 60,
+      "pause_after": 3,
+      "assertions": [
+        {
+          "pattern": "partition|osdu|understood|got it",
+          "type": "regex",
+          "description": "Acknowledges the context"
+        }
+      ]
+    },
+    {
+      "name": "follow-up-uses-context",
+      "prompt": "check if there are any open MRs for it",
+      "timeout": 90,
+      "pause_after": 3,
+      "assertions": [
+        {
+          "pattern": "partition|MR|merge|glab|osdu-activity",
+          "type": "regex",
+          "description": "Uses prior context (partition service) for MR lookup"
+        }
+      ]
+    },
+    {
+      "name": "domain-switch",
+      "prompt": "actually, can you also check the terraform plan for infra changes?",
+      "timeout": 90,
+      "pause_after": 3,
+      "assertions": [
+        {
+          "pattern": "terraform|infra|cimpl|plan",
+          "type": "regex",
+          "description": "Switches to infrastructure domain correctly"
+        }
+      ]
+    }
+  ]
+}

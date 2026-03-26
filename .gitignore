@@ -1,0 +1,8 @@
+__pycache__/
+*.pyc
+*.pyo
+.pytest_cache/
+.claude/
+.tmp/
+node_modules/
+plugins/*/mcp/data/

@@ -1,0 +1,28 @@
+{
+  "name": "osdu",
+  "version": "0.1.0",
+  "description": "OSDU platform operations — agents, skills, and live platform access for analytics, QA testing, builds, knowledge management, and shipping across OSDU Community Implementation environments on Azure",
+  "author": {
+    "name": "Daniel Scholl",
+    "email": "daniel.scholl@microsoft.com"
+  },
+  "license": "Apache-2.0",
+  "keywords": [
+    "osdu",
+    "azure",
+    "platform-operations",
+    "gitlab",
+    "qa-testing",
+    "dependency-management",
+    "knowledge-management"
+  ],
+  "repository": "https://community.opengroup.org/danielscholl/claude-osdu",
+  "agents": [
+    "./agents/osdu.md",
+    "./agents/build-runner.md",
+    "./agents/qa-runner.md",
+    "./agents/qa-analyzer.md",
+    "./agents/qa-comparator.md",
+    "./agents/qa-reporter.md"
+  ]
+}

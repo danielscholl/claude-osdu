@@ -1,0 +1,92 @@
+{
+  "skill_name": "send",
+  "evals": [
+    {
+      "query": "I'm done with my changes, send it",
+      "should_trigger": true
+    },
+    {
+      "query": "ship it — review, commit, push, and create the MR",
+      "should_trigger": true
+    },
+    {
+      "query": "can you push my changes and create a merge request?",
+      "should_trigger": true
+    },
+    {
+      "query": "do a quick code review of my changes and then commit them",
+      "should_trigger": true
+    },
+    {
+      "query": "I need to commit and push this to the feature branch",
+      "should_trigger": true
+    },
+    {
+      "query": "submit my work — I want to get this up for review",
+      "should_trigger": true
+    },
+    {
+      "query": "I'm finished, help me get this into a merge request on GitLab",
+      "should_trigger": true
+    },
+    {
+      "query": "send this up, I need to get it reviewed before end of day",
+      "should_trigger": true
+    },
+    {
+      "query": "what merge requests are currently open across OSDU services?",
+      "should_trigger": false,
+      "note": "Listing MRs -> osdu-activity"
+    },
+    {
+      "query": "review MR 845 on search-service and tell me what the pipeline failures are",
+      "should_trigger": false,
+      "note": "MR review -> mr-review"
+    },
+    {
+      "query": "push my test changes into someone else's MR as a contribution",
+      "should_trigger": false,
+      "note": "Contributing to MR -> contribute"
+    },
+    {
+      "query": "allow MR !320 through the trusted branch workflow",
+      "should_trigger": false,
+      "note": "Trusted branch sync -> maintainer"
+    },
+    {
+      "query": "how do I use the glab command to add a comment to a merge request?",
+      "should_trigger": false,
+      "note": "glab syntax help → glab"
+    },
+    {
+      "query": "run the smoke tests on cimpl/lab",
+      "should_trigger": false,
+      "note": "Test execution → osdu-qa"
+    },
+    {
+      "query": "check the dependencies for os-storage and find critical CVEs",
+      "should_trigger": false,
+      "note": "Dependencies → dependency-scan"
+    },
+    {
+      "query": "add a readiness probe to the partition helm chart",
+      "should_trigger": false,
+      "note": "Infrastructure → iac"
+    },
+    {
+      "query": "who are the top contributors to OSDU this quarter?",
+      "should_trigger": false,
+      "note": "Contributors → osdu-engagement"
+    },
+    {
+      "query": "build the partition service with maven",
+      "should_trigger": false,
+      "note": "Build execution → maven/build-runner"
+    },
+    {
+      "query": "what should I focus on today?",
+      "should_trigger": false,
+      "note": "Briefing → default context"
+    }
+  ]
+}

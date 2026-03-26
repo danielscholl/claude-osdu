@@ -1,0 +1,51 @@
+{
+  "name": "osdu-quality-workflow",
+  "description": "Test osdu-quality skill \u2014 test reliability analysis, flaky test detection, pass rates",
+  "ready_pattern": "\u276f|\\$|>|claude",
+  "steps": [
+    {
+      "name": "test-reliability",
+      "prompt": "how reliable are the partition service tests? anything flaky?",
+      "timeout": 180,
+      "pause_after": 3,
+      "assertions": [
+        {
+          "pattern": "osdu-quality|pass rate|flaky|reliability|test health",
+          "type": "regex",
+          "description": "Uses osdu-quality for test reliability analysis"
+        },
+        {
+          "pattern": "osdu-activity",
+          "type": "not_contains",
+          "description": "Does NOT confuse with osdu-activity (pipeline status)"
+        }
+      ]
+    },
+    {
+      "name": "pass-rate-breakdown",
+      "prompt": "show me a pass rate breakdown by cloud provider for the search service",
+      "timeout": 180,
+      "pause_after": 3,
+      "assertions": [
+        {
+          "pattern": "osdu-quality|pass rate|provider|cloud|test|reliability|couldn.*find",
+          "type": "regex",
+          "description": "Addresses test metrics by provider"
+        }
+      ]
+    },
+    {
+      "name": "boundary-test",
+      "prompt": "who's been reviewing the most MRs for search this month?",
+      "timeout": 180,
+      "pause_after": 3,
+      "assertions": [
+        {
+          "pattern": "osdu-engagement|contributor|review|reviewer|engagement|who|team",
+          "type": "regex",
+          "description": "Routes to osdu-engagement for reviewer analysis (not quality)"
+        }
+      ]
+    }
+  ]
+}

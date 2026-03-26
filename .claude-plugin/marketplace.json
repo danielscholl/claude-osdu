@@ -1,0 +1,23 @@
+{
+  "name": "osdu",
+  "owner": {
+    "name": "Daniel Scholl",
+    "email": "daniel.scholl@microsoft.com"
+  },
+  "plugins": [
+    {
+      "name": "osdu",
+      "source": "./plugins/osdu",
+      "description": "OSDU platform operations — agents, skills, and live platform access for analytics, QA testing, builds, knowledge management, and shipping across OSDU Community Implementation environments on Azure"
+    },
+    {
+      "name": "cimpl",
+      "source": "./plugins/cimpl",
+      "description": "Azure infrastructure as code — Terraform, Helm, AKS, and environment provisioning for OSDU Community Implementation deployments"
+    }
+  ],
+  "metadata": {
+    "description": "Claude Code plugins for OSDU platform operations and infrastructure automation",
+    "version": "0.1.0"
+  }
+}

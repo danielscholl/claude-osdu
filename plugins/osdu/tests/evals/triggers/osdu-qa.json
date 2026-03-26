@@ -1,0 +1,69 @@
+{
+  "skill_name": "osdu-qa",
+  "evals": [
+    {
+      "query": "hey can you run the legal and storage API tests against our cimpl/qa environment? I want to see if the latest deploy broke anything",
+      "should_trigger": true
+    },
+    {
+      "query": "run the smoke tests on cimpl/lab and let me know the pass rate",
+      "should_trigger": true
+    },
+    {
+      "query": "I need to check if the qa environment is healthy before we start testing",
+      "should_trigger": true
+    },
+    {
+      "query": "compare test results between cimpl/qa and cimpl/temp — are there any regressions?",
+      "should_trigger": true
+    },
+    {
+      "query": "generate a QA report for the smoke test results, I need an HTML dashboard",
+      "should_trigger": true
+    },
+    {
+      "query": "what test collections do we have? list the P0 and P1 tests",
+      "should_trigger": true
+    },
+    {
+      "query": "run osdu-qa env status to see which environment I'm pointing at",
+      "should_trigger": true
+    },
+    {
+      "query": "the entitlements tests failed on cimpl/temp — can you analyze what went wrong and give me a root cause?",
+      "should_trigger": true
+    },
+    {
+      "query": "I need to add a new Helm chart for the ingestion service to our AKS cluster",
+      "should_trigger": false
+    },
+    {
+      "query": "check the dependencies for os-storage and see if there are any critical CVEs",
+      "should_trigger": false
+    },
+    {
+      "query": "what's the pipeline status for the partition service on GitLab?",
+      "should_trigger": false
+    },
+    {
+      "query": "help me fix the terraform module that's failing the Azure policy check",
+      "should_trigger": false
+    },
+    {
+      "query": "who's been contributing the most to OSDU this month? show me the review activity",
+      "should_trigger": false
+    },
+    {
+      "query": "build the partition service and run maven verify",
+      "should_trigger": false
+    },
+    {
+      "query": "create a merge request for my changes and push to the feature branch",
+      "should_trigger": false
+    },
+    {
+      "query": "how reliable are the partition tests? are there flaky tests we should look at?",
+      "should_trigger": false
+    }
+  ]
+}

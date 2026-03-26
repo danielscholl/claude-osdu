@@ -1,0 +1,77 @@
+{
+  "skill_name": "remediate",
+  "evals": [
+    {
+      "query": "apply the dependency updates from the analysis report — start with the low risk ones",
+      "should_trigger": true
+    },
+    {
+      "query": "remediate the vulnerabilities identified in the dependency scan",
+      "should_trigger": true
+    },
+    {
+      "query": "fix the deps — apply the updates from the remediation report",
+      "should_trigger": true
+    },
+    {
+      "query": "execute the dependency remediation plan for partition service",
+      "should_trigger": true
+    },
+    {
+      "query": "apply the low-risk dependency updates as a batch commit",
+      "should_trigger": true
+    },
+    {
+      "query": "update the spring-boot dependencies based on the risk-scored report",
+      "should_trigger": true
+    },
+    {
+      "query": "remediate — apply the medium-risk updates one at a time with validation",
+      "should_trigger": true
+    },
+    {
+      "query": "fix deps for storage using the report we just generated",
+      "should_trigger": true
+    },
+    {
+      "query": "check deps for partition — full analysis with risk scoring",
+      "should_trigger": false,
+      "note": "Analysis → dependency-scan"
+    },
+    {
+      "query": "what version of spring-core is the latest available?",
+      "should_trigger": false,
+      "note": "Version lookup → dependency-scan"
+    },
+    {
+      "query": "build partition with Maven and run unit tests",
+      "should_trigger": false,
+      "note": "Build execution → maven"
+    },
+    {
+      "query": "run the smoke tests on cimpl/lab",
+      "should_trigger": false,
+      "note": "Test execution → osdu-qa"
+    },
+    {
+      "query": "what pipelines are failing across OSDU services?",
+      "should_trigger": false,
+      "note": "Pipeline status → osdu-activity"
+    },
+    {
+      "query": "ship my changes and create the merge request",
+      "should_trigger": false,
+      "note": "Ship workflow → send"
+    },
+    {
+      "query": "fix the FOSSA NOTICE file from the failed pipeline",
+      "should_trigger": false,
+      "note": "FOSSA fix → fossa"
+    },
+    {
+      "query": "scan the vault for stale notes",
+      "should_trigger": false,
+      "note": "Vault maintenance → consolidate"
+    }
+  ]
+}

@@ -1,0 +1,77 @@
+{
+  "skill_name": "health",
+  "evals": [
+    {
+      "query": "report on my environments — what's the cluster status?",
+      "should_trigger": true
+    },
+    {
+      "query": "how is my AKS cluster doing? are all nodes healthy?",
+      "should_trigger": true
+    },
+    {
+      "query": "give me an environment health check across all my deployed environments",
+      "should_trigger": true
+    },
+    {
+      "query": "what's deployed right now? I want a full status overview",
+      "should_trigger": true
+    },
+    {
+      "query": "are there any pods crashing or stuck in pending across my environments?",
+      "should_trigger": true
+    },
+    {
+      "query": "environment status — check if OSDU services are responding",
+      "should_trigger": true
+    },
+    {
+      "query": "is everything running after that last deployment?",
+      "should_trigger": true
+    },
+    {
+      "query": "cluster health report for all my AZD environments",
+      "should_trigger": true
+    },
+    {
+      "query": "add a readiness probe to the cert-manager helm chart to pass AKS safeguards",
+      "should_trigger": false,
+      "note": "Infrastructure changes → iac"
+    },
+    {
+      "query": "how reliable are the partition service tests? any flaky ones?",
+      "should_trigger": false,
+      "note": "Test reliability → osdu-quality"
+    },
+    {
+      "query": "run the smoke tests on cimpl/lab",
+      "should_trigger": false,
+      "note": "Test execution → osdu-qa"
+    },
+    {
+      "query": "what pipelines are failing across OSDU services?",
+      "should_trigger": false,
+      "note": "Pipeline monitoring → osdu-activity"
+    },
+    {
+      "query": "terraform plan shows a diff on the networking module",
+      "should_trigger": false,
+      "note": "Terraform work → iac"
+    },
+    {
+      "query": "check the dependencies for storage service and find any critical CVEs",
+      "should_trigger": false,
+      "note": "Dependency analysis → dependencies"
+    },
+    {
+      "query": "who are the top contributors to OSDU this quarter?",
+      "should_trigger": false,
+      "note": "Contributors → osdu-engagement"
+    },
+    {
+      "query": "ship my changes and create the merge request",
+      "should_trigger": false,
+      "note": "Ship workflow → send"
+    }
+  ]
+}

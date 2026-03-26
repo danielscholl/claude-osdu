@@ -1,0 +1,74 @@
+{
+  "name": "glab-workflow",
+  "description": "Test glab skill activation and command accuracy across a multi-turn MR workflow",
+  "ready_pattern": "❯|\\$|>|claude",
+  "steps": [
+    {
+      "name": "list-open-mrs",
+      "prompt": "what merge requests are currently open for me?",
+      "timeout": 120,
+      "pause_after": 3,
+      "assertions": [
+        {
+          "pattern": "glab mr list|merge request|MR|PR|open",
+          "type": "regex",
+          "description": "Discusses merge requests or PRs"
+        },
+        {
+          "pattern": "--state=opened",
+          "type": "not_contains",
+          "description": "Does NOT use hallucinated --state flag"
+        }
+      ]
+    },
+    {
+      "name": "check-pipeline",
+      "prompt": "how do I check if the pipeline on MR !42 is passing or failing?",
+      "timeout": 120,
+      "pause_after": 3,
+      "assertions": [
+        {
+          "pattern": "glab ci|pipeline|ci status|ci trace",
+          "type": "regex",
+          "description": "Uses glab ci commands for pipeline inspection"
+        }
+      ]
+    },
+    {
+      "name": "comment-syntax",
+      "prompt": "what is the correct glab command to leave a comment on a merge request?",
+      "timeout": 120,
+      "pause_after": 3,
+      "assertions": [
+        {
+          "pattern": "glab mr note",
+          "type": "contains",
+          "description": "Uses correct glab mr note command"
+        },
+        {
+          "pattern": "glab mr note create",
+          "type": "not_contains",
+          "description": "Does NOT use hallucinated 'note create' subcommand"
+        }
+      ]
+    },
+    {
+      "name": "api-pagination",
+      "prompt": "how would I fetch all jobs from a pipeline using the glab API if there are more than 100?",
+      "timeout": 120,
+      "pause_after": 3,
+      "assertions": [
+        {
+          "pattern": "paginate|per_page",
+          "type": "regex",
+          "description": "Uses pagination correctly"
+        },
+        {
+          "pattern": "--per-page",
+          "type": "not_contains",
+          "description": "Does NOT use hallucinated --per-page CLI flag"
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,77 @@
+{
+  "skill_name": "maven",
+  "evals": [
+    {
+      "query": "build the partition service with Maven and run the unit tests",
+      "should_trigger": true
+    },
+    {
+      "query": "run mvn verify on the storage service project",
+      "should_trigger": true
+    },
+    {
+      "query": "the Maven build is failing with a compilation error in os-core-common",
+      "should_trigger": true
+    },
+    {
+      "query": "check if spring-boot-starter-parent 3.2.0 exists on Maven Central",
+      "should_trigger": true
+    },
+    {
+      "query": "how do I run just the integration tests with Maven for the search service?",
+      "should_trigger": true
+    },
+    {
+      "query": "scan the partition project pom.xml for security vulnerabilities with Trivy",
+      "should_trigger": true
+    },
+    {
+      "query": "what Java test frameworks does the storage service use?",
+      "should_trigger": true
+    },
+    {
+      "query": "run the Maven build with -DskipTests to just compile and package",
+      "should_trigger": true
+    },
+    {
+      "query": "run the smoke tests on cimpl/lab and show the pass rate",
+      "should_trigger": false,
+      "note": "QA test execution → osdu-qa"
+    },
+    {
+      "query": "what merge requests are open across OSDU services?",
+      "should_trigger": false,
+      "note": "MR status → osdu-activity"
+    },
+    {
+      "query": "add a readiness probe to the helm chart for AKS safeguards",
+      "should_trigger": false,
+      "note": "Infrastructure → iac"
+    },
+    {
+      "query": "report on my environments — are all nodes healthy?",
+      "should_trigger": false,
+      "note": "Environment health → health"
+    },
+    {
+      "query": "ship my changes and create the merge request",
+      "should_trigger": false,
+      "note": "Ship workflow → send"
+    },
+    {
+      "query": "who are the top contributors to OSDU this quarter?",
+      "should_trigger": false,
+      "note": "Contributors → osdu-engagement"
+    },
+    {
+      "query": "how reliable are the search API tests? any flaky ones?",
+      "should_trigger": false,
+      "note": "Test reliability → osdu-quality"
+    },
+    {
+      "query": "remember this: we decided to use spring-boot 3.2 for all new services",
+      "should_trigger": false,
+      "note": "Vault storage → brain"
+    }
+  ]
+}

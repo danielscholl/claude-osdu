@@ -1,0 +1,112 @@
+{
+  "skill_name": "mr-review",
+  "evals": [
+    {
+      "query": "can you review this MR? https://community.opengroup.org/osdu/platform/system/search-service/-/merge_requests/845",
+      "should_trigger": true
+    },
+    {
+      "query": "review MR 845 on search-service",
+      "should_trigger": true
+    },
+    {
+      "query": "take a look at this merge request and tell me if it's ready to merge",
+      "should_trigger": true
+    },
+    {
+      "query": "assess MR !320 for the entitlements service",
+      "should_trigger": true
+    },
+    {
+      "query": "what do you think of this MR? Is the code sound and does the pipeline pass?",
+      "should_trigger": true
+    },
+    {
+      "query": "check the pipeline status for MR 845 and tell me what's blocking it",
+      "should_trigger": true
+    },
+    {
+      "query": "I need a code review on the latest merge request for partition service",
+      "should_trigger": true
+    },
+    {
+      "query": "evaluate this merge request and classify the pipeline failures",
+      "should_trigger": true
+    },
+    {
+      "query": "https://community.opengroup.org/osdu/platform/system/partition/-/merge_requests/312",
+      "should_trigger": true,
+      "note": "Bare MR URL with no surrounding text"
+    },
+    {
+      "query": "summarize MR 845 for search-service and tell me if anything looks risky",
+      "should_trigger": true,
+      "note": "Summarize framing, not explicit review"
+    },
+    {
+      "query": "is !320 safe to merge? I want to know about any breaking changes",
+      "should_trigger": true,
+      "note": "Safety/risk framing"
+    },
+    {
+      "query": "what does this MR change and should we be concerned about it?",
+      "should_trigger": true,
+      "note": "Informational but needs deep analysis"
+    },
+    {
+      "query": "ship my changes and create a merge request",
+      "should_trigger": false,
+      "note": "Shipping own changes -> send"
+    },
+    {
+      "query": "allow MR !320 through the trusted branch workflow",
+      "should_trigger": false,
+      "note": "Trusted branch sync -> maintainer"
+    },
+    {
+      "query": "what merge requests are open across OSDU services?",
+      "should_trigger": false,
+      "note": "Listing MRs -> osdu-activity"
+    },
+    {
+      "query": "push these test changes into their MR branch as a sub-MR",
+      "should_trigger": false,
+      "note": "Contributing to someone's MR -> contribute"
+    },
+    {
+      "query": "how do I create a merge request with glab?",
+      "should_trigger": false,
+      "note": "glab CLI help -> glab"
+    },
+    {
+      "query": "run the smoke tests on cimpl/lab",
+      "should_trigger": false,
+      "note": "Test execution -> osdu-qa"
+    },
+    {
+      "query": "check the dependencies for storage and find critical CVEs",
+      "should_trigger": false,
+      "note": "Dependencies -> dependency-scan"
+    },
+    {
+      "query": "who are the top contributors to OSDU this quarter?",
+      "should_trigger": false,
+      "note": "Contributors -> osdu-engagement"
+    },
+    {
+      "query": "merge MR !845 now, it's been approved",
+      "should_trigger": false,
+      "note": "Merge action, not review -> glab"
+    },
+    {
+      "query": "rebase MR !845 on top of the latest master",
+      "should_trigger": false,
+      "note": "Git action, not review -> glab"
+    },
+    {
+      "query": "add me as a reviewer on MR !320",
+      "should_trigger": false,
+      "note": "GitLab admin action -> glab"
+    }
+  ]
+}

@@ -1,0 +1,72 @@
+{
+  "name": "contribute-workflow",
+  "description": "Test contribute skill — understands fork, branch, sub-MR, comment workflow, and routing boundaries",
+  "ready_pattern": "❯|\\$|>|claude",
+  "steps": [
+    {
+      "name": "contribute-knowledge",
+      "prompt": "I've made some test improvements on someone else's MR branch. How do I submit those as a contribution?",
+      "timeout": 180,
+      "pause_after": 3,
+      "assertions": [
+        {
+          "pattern": "sub.MR|target.*branch|contribution|fork|push",
+          "type": "regex",
+          "description": "Describes the sub-MR contribution workflow"
+        }
+      ]
+    },
+    {
+      "name": "sub-mr-targeting",
+      "prompt": "what branch should I target when creating an MR to contribute to someone else's MR?",
+      "timeout": 180,
+      "pause_after": 3,
+      "assertions": [
+        {
+          "pattern": "source.branch|their branch|MR.*branch|target",
+          "type": "regex",
+          "description": "Knows to target the parent MR source branch, not main/dev"
+        }
+      ]
+    },
+    {
+      "name": "comment-drafting",
+      "prompt": "after creating the sub-MR, should I comment on the parent MR to let the author know?",
+      "timeout": 180,
+      "pause_after": 3,
+      "assertions": [
+        {
+          "pattern": "comment|note|notify|author|draft|glab mr note",
+          "type": "regex",
+          "description": "Knows to draft a comment on the parent MR"
+        }
+      ]
+    },
+    {
+      "name": "workflow-execution",
+      "prompt": "contribute these test coverage fixes to MR 845 on search-service",
+      "timeout": 180,
+      "pause_after": 3,
+      "assertions": [
+        {
+          "pattern": "branch|commit|push|MR|merge request",
+          "type": "regex",
+          "description": "Starts executing the contribution workflow"
+        }
+      ]
+    },
+    {
+      "name": "boundary-test",
+      "prompt": "review MR 845 and tell me if the code looks good",
+      "timeout": 120,
+      "pause_after": 3,
+      "assertions": [
+        {
+          "pattern": "review|assess|code|changes|diff",
+          "type": "regex",
+          "description": "Routes to mr-review (not contribute)"
+        }
+      ]
+    }
+  ]
+}
