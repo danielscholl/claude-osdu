@@ -1,0 +1,45 @@
+name: Version Bump
+
+on:
+  workflow_dispatch:
+    inputs:
+      bump_type:
+        description: "Bump type"
+        required: true
+        type: choice
+        options:
+          - patch
+          - minor
+          - major
+      plugin:
+        description: "Plugin to bump (leave empty for all changed)"
+        required: false
+        type: string
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  bump:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Bump versions
+        run: |
+          chmod +x scripts/version.sh
+          ./scripts/version.sh bump ${{ inputs.bump_type }} ${{ inputs.plugin }}
+
+      - name: Create PR
+        uses: peter-evans/create-pull-request@v7
+        with:
+          commit-message: "chore: bump version (${{ inputs.bump_type }})"
+          title: "chore: version bump (${{ inputs.bump_type }})"
+          body: |
+            Automated version bump: **${{ inputs.bump_type }}**
+            Plugin scope: ${{ inputs.plugin || 'all' }}
+          branch: chore/version-bump
+          delete-branch: true

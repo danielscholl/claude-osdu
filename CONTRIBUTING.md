@@ -112,6 +112,29 @@ make test              # L1 + L2 + pytest (run after every change)
 3. Create `tests/evals/triggers/{name}.json` for trigger accuracy testing
 4. Run `make test P={plugin}` to validate
 
+## Version Management
+
+Three files carry version numbers that must stay in sync:
+- `.claude-plugin/marketplace.json` — marketplace version
+- `plugins/osdu/.claude-plugin/plugin.json` — osdu plugin version
+- `plugins/cimpl/.claude-plugin/plugin.json` — cimpl plugin version
+
+**Rule:** when a plugin's files change, its version must be bumped. The marketplace version is always the max of all plugin versions.
+
+### Quick Commands
+
+```bash
+./scripts/version.sh check          # Verify bumps (runs in CI on PRs)
+./scripts/version.sh bump patch     # Bump all plugins
+./scripts/version.sh bump minor osdu  # Bump one plugin
+./scripts/version.sh sync           # Sync marketplace to max plugin version
+```
+
+### CI Enforcement
+
+- **PRs to main** automatically run the version check. If you changed plugin files without bumping, the check fails.
+- **Manual bump** via GitHub Actions: run the "Version Bump" workflow from the Actions tab.
+
 ## Conventions
 
 - Skill names: lowercase kebab-case, must match directory name

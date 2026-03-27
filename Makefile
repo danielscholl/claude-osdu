@@ -23,7 +23,7 @@ DEBUG_FLAG := $(if $(DEBUG),--debug,)
 # Auto-discover plugins that have tests/evals directories
 PLUGINS := $(sort $(patsubst plugins/%/tests/,%,$(wildcard plugins/*/tests/)))
 
-.PHONY: test lint unit integration benchmark report test-skill help pytest
+.PHONY: test lint unit integration benchmark report test-skill help pytest version-check version-bump
 
 help: ## Show this help
 	@echo "Plugin Test Runner"
@@ -243,3 +243,13 @@ pytest:
 		fi; \
 	done; \
 	if [ $$failed -eq 1 ]; then exit 1; fi
+
+# =============================================================================
+# Version management
+# =============================================================================
+
+version-check: ## Verify changed plugins have version bumps
+	@./scripts/version.sh check
+
+version-bump: ## Bump versions (usage: make version-bump T=patch [P=osdu])
+	@./scripts/version.sh bump $(or $(T),patch) $(P)
