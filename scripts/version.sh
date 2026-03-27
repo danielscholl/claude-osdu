@@ -86,24 +86,22 @@ cmd_check() {
     fi
   done
 
-  # Check marketplace version is >= max plugin version
-  local max_v mkt_v
-  max_v="0.0.0"
-  for plugin in $(list_plugins); do
-    local pjson
-    pjson="$(plugin_json "$plugin")"
-    [ -f "$pjson" ] || continue
-    local v
-    v=$(get_version "$pjson")
-    max_v=$(max_version "$max_v" "$v")
-  done
+  # Check marketplace version bumps only when marketplace.json itself changed
+  local mkt_changed
+  mkt_changed=$(git diff --name-only "$base_ref" -- ".claude-plugin/marketplace.json" 2>/dev/null || true)
 
-  mkt_v=$(get_version "$MARKETPLACE_JSON")
-  if version_gt "$max_v" "$mkt_v"; then
-    echo "FAIL: marketplace version ($mkt_v) is behind max plugin version ($max_v)"
-    errors=$((errors + 1))
+  if [ -n "$mkt_changed" ]; then
+    local old_mkt new_mkt
+    old_mkt=$(git show "$base_ref:.claude-plugin/marketplace.json" 2>/dev/null | grep '"version"' | head -1 | sed 's/.*"version"[[:space:]]*:[[:space:]]*"\([^"]*\)".*/\1/' || echo "0.0.0")
+    new_mkt=$(get_version "$MARKETPLACE_JSON")
+    if [ "$old_mkt" = "$new_mkt" ]; then
+      echo "FAIL: marketplace.json changed but version is still $old_mkt"
+      errors=$((errors + 1))
+    else
+      echo "OK: marketplace version bumped $old_mkt -> $new_mkt"
+    fi
   else
-    echo "OK: marketplace version ($mkt_v) >= max plugin version ($max_v)"
+    echo "SKIP: marketplace.json unchanged"
   fi
 
   if [ "$errors" -gt 0 ]; then
@@ -136,9 +134,6 @@ cmd_bump() {
     set_version "$pjson" "$new_version"
     echo "Bumped plugin '$plugin': $old_version -> $new_version"
   done
-
-  # Sync marketplace
-  cmd_sync
 }
 
 cmd_sync() {
