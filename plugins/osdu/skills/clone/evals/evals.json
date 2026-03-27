@@ -1,0 +1,46 @@
+{
+  "skill_name": "clone",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "clone the partition service",
+      "expected_output": "Repo cloned using bare clone + worktree layout since wt is installed. Directory structure: partition/.bare/ and partition/master/",
+      "files": [],
+      "expectations": [
+        "Ran 'command -v wt' or 'which wt' to detect clone method before cloning",
+        "Used 'git clone --bare' (not plain 'git clone')",
+        "Created .bare directory inside the repo folder",
+        "Created a .git file (not directory) with gitdir pointer",
+        "Configured remote.origin.fetch refspec on the bare repo",
+        "Created a worktree for the default branch (master)",
+        "Final layout has $REPO/.bare/ and $REPO/master/"
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "clone common library",
+      "expected_output": "os-core-common cloned using bare clone + worktree layout. Resolved 'common library' to the libraries category or os-core-common repo.",
+      "files": [],
+      "expectations": [
+        "Ran clone method detection check before cloning",
+        "Correctly resolved 'common library' to os-core-common (or the libraries category)",
+        "Used the correct GitLab URL: community.opengroup.org/osdu/platform/system/lib/core/os-core-common",
+        "Used bare clone + worktree layout (not plain git clone)",
+        "Created worktree for the default branch"
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "clone category:core",
+      "expected_output": "All core services cloned using bare clone + worktree layout. Should clone partition, entitlements, legal, secret, schema-service, storage, file, indexer-service, indexer-queue, search-service, dataset, register, notification.",
+      "files": [],
+      "expectations": [
+        "Ran clone method detection once before starting any clones",
+        "Resolved category:core to the full list of core services",
+        "Used bare clone + worktree layout for every repo",
+        "Skipped repos that already exist in the workspace",
+        "Reported summary: cloned count, skipped, failures"
+      ]
+    }
+  ]
+}
