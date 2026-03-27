@@ -114,12 +114,12 @@ make test              # L1 + L2 + pytest (run after every change)
 
 ## Version Management
 
-Three files carry version numbers that must stay in sync:
-- `.claude-plugin/marketplace.json` — marketplace version
+Version numbers are tracked independently:
+- `.claude-plugin/marketplace.json` — marketplace version (bump when adding/removing plugins)
 - `plugins/osdu/.claude-plugin/plugin.json` — osdu plugin version
 - `plugins/cimpl/.claude-plugin/plugin.json` — cimpl plugin version
 
-**Rule:** when a plugin's files change, its version must be bumped. The marketplace version is always the max of all plugin versions.
+**Rule:** when a plugin's files change, that plugin's version must be bumped. The marketplace version is independent — only bump it when the marketplace structure itself changes (adding or removing plugins).
 
 ### Quick Commands
 
@@ -127,7 +127,7 @@ Three files carry version numbers that must stay in sync:
 ./scripts/version.sh check          # Verify bumps (runs in CI on PRs)
 ./scripts/version.sh bump patch     # Bump all plugins
 ./scripts/version.sh bump minor osdu  # Bump one plugin
-./scripts/version.sh sync           # Sync marketplace to max plugin version
+./scripts/version.sh sync           # Sync marketplace to max plugin version (manual)
 ```
 
 ### CI Enforcement
