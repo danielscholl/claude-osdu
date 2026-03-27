@@ -41,6 +41,10 @@ in that situation is wrong because it creates a repo structure that `wt`
 cannot manage. So the detection result is not a suggestion; it is a gate
 that selects the clone procedure.
 
+**IMPORTANT:** `wt` does NOT have a clone command. Do not run `wt clone`.
+The clone procedure always uses raw `git` commands (see Step 4). `wt` is
+only checked here to decide which layout to create.
+
 ## Step 3: Resolve which repos to clone
 
 ### Categories
