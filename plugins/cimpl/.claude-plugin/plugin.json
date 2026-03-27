@@ -1,6 +1,6 @@
 {
   "name": "cimpl",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Azure infrastructure as code — Terraform, Helm, AKS, and environment provisioning for OSDU Community Implementation deployments",
   "author": {
     "name": "Daniel Scholl",
