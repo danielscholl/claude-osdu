@@ -133,33 +133,33 @@ Read only -- do not write to the vault. Before modifying service config, deps, o
 
 The routing table determines **WHO** handles work. After routing, use Response Mode Selection to determine **HOW**.
 
+**Skills are NOT agents.** When the routing table says "Execute skill inline," read `skills/{name}/SKILL.md` and run its steps directly. Do NOT delegate skills to an agent via the Agent tool.
+
 | Signal | Action |
 |--------|--------|
-| Clone repos ("clone", "checkout", "get repo") | Use the `clone` skill |
-| Dependencies ("deps", "CVE", "vulnerability") | Use the `dependency-scan` skill |
-| Remediation ("remediate", "fix deps", "apply updates") | Use the `remediate` skill |
-| FOSSA fix ("fossa", "NOTICE file") | Use the `fossa` skill |
-| MR review ("review MR", "assess MR", "check MR pipeline") | Use the `mr-review` skill |
-| Contribute to MR ("contribute to MR", "sub-MR", "push into their MR") | Use the `contribute` skill |
-| Maintainer actions ("allow MR", "trusted branch", "sync trusted") | Use the `maintainer` skill |
-| Setup/environment ("setup", "check tools", "prerequisites") | Use the `setup` skill |
-| Test execution ("run tests", "smoke test") | Delegate to qa-runner agent |
-| Test failures ("why did tests fail", "analyze failures") | Delegate to qa-analyzer agent |
-| Environment comparison ("compare", "diff environments") | Delegate to qa-comparator agent |
-| Report generation ("generate report", "dashboard") | Delegate to qa-reporter agent |
-| Build execution ("build", "compile", "verify") | Delegate to build-runner agent |
-| Analytics ("analyze", "health", "status") | Use osdu-activity, osdu-quality, osdu-engagement skills directly |
-| Pipeline/MR/issue queries | Use osdu-activity skill directly |
-| Contribution/engagement queries | Use osdu-engagement skill directly |
-| Test reliability/flaky test queries | Use osdu-quality skill directly |
-| GitLab CLI operations | Use glab skill directly |
+| Clone repos ("clone", "checkout", "get repo") | Execute `clone` skill inline |
+| Dependencies ("deps", "CVE", "vulnerability") | Execute `dependency-scan` skill inline |
+| Remediation ("remediate", "fix deps", "apply updates") | Execute `remediate` skill inline |
+| FOSSA fix ("fossa", "NOTICE file") | Execute `fossa` skill inline |
+| MR review ("review MR", "assess MR", "check MR pipeline") | Execute `mr-review` skill inline |
+| Contribute to MR ("contribute to MR", "sub-MR", "push into their MR") | Execute `contribute` skill inline |
+| Maintainer actions ("allow MR", "trusted branch", "sync trusted") | Execute `maintainer` skill inline |
+| Setup/environment ("setup", "check tools", "prerequisites") | Execute `setup` skill inline |
+| Test execution ("run tests", "smoke test") | Delegate to `osdu:qa-runner` agent |
+| Test failures ("why did tests fail", "analyze failures") | Delegate to `osdu:qa-analyzer` agent |
+| Environment comparison ("compare", "diff environments") | Delegate to `osdu:qa-comparator` agent |
+| Report generation ("generate report", "dashboard") | Delegate to `osdu:qa-reporter` agent |
+| Build execution ("build", "compile", "verify") | Delegate to `osdu:build-runner` agent |
+| Analytics ("analyze", "health", "status") | Execute osdu-activity, osdu-quality, osdu-engagement skills inline |
+| Pipeline/MR/issue queries | Execute osdu-activity skill inline |
+| Contribution/engagement queries | Execute osdu-engagement skill inline |
+| Test reliability/flaky test queries | Execute osdu-quality skill inline |
+| GitLab CLI operations | Execute glab skill inline |
 | Platform data ("search records", "check entitlements", "list schemas", "health check") | Use OSDU extension tools directly |
 | Tenant/identity queries ("users", "groups", "entitlements") | Use OSDU extension entitlements tools directly |
 | Environment questions ("environments", "setup", "configure") | Read reference/environments.md, answer inline |
 | Quick factual question | Answer directly (no delegation) |
 | Ambiguous | Pick the most likely route; say what you chose |
-
-**Skill-aware routing:** Before delegating, check available skills for ones relevant to the task domain. If a matching skill exists, include relevant skill reference in the delegation prompt.
 
 **Multi-repo routing:** When the user mentions a service name, resolve it to both the GitLab path AND the local workspace path (if cloned). Pass both to sub-agents.
 
