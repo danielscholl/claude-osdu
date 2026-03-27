@@ -7,41 +7,25 @@ description: >-
   Not for: building or testing cloned repos (use maven or acceptance-test), or checking repo status (use glab or osdu-activity).
 ---
 
-# OSDU Clone Workflow
+# OSDU Clone
 
 > **Execute directly. Do NOT delegate to an agent or sub-agent.**
-> This is a self-contained procedural skill — run the commands inline in the current context.
 
-Clone repositories into the OSDU workspace using a step-by-step procedure.
-Follow these steps in order — each step depends on the previous one.
+## Step 1: Resolve the clone target
 
-## Step 1: Resolve workspace path
+Parse the user's request to determine which repos to clone.
 
-```bash
-OSDU_WORKSPACE="${OSDU_WORKSPACE:-$(pwd)}"
-```
+### Valid targets
 
-## Step 2: Detect clone method
-
-Run this check before any clone operation. The result determines which clone
-procedure to use for every repo in this session.
-
-```bash
-if command -v wt &>/dev/null || command -v git-wt &>/dev/null; then
-  USE_WORKTREE=true
-else
-  USE_WORKTREE=false
-fi
-echo "USE_WORKTREE=$USE_WORKTREE"
-```
-
-The `wt` tool (worktrunk) manages bare-clone worktree layouts. When it is
-installed, the user expects the worktree layout — using a plain `git clone`
-in that situation is wrong because it creates a repo structure that `wt`
-cannot manage. So the detection result is not a suggestion; it is a gate
-that selects the clone procedure.
-
-## Step 3: Resolve which repos to clone
+| Target | What it clones |
+|--------|----------------|
+| `partition` | Single repo by name |
+| `os-core-common` | Single repo by name |
+| `core` | All repos in the core category |
+| `libraries` | All repos in the libraries category |
+| `service:partition` | Explicit single repo |
+| `category:core` | Explicit category |
+| `all` | Everything |
 
 ### Categories
 
@@ -54,21 +38,10 @@ that selects the clone procedure.
 | ingestion | ingestion-workflow |
 | domain | wellbore-domain-services, seismic-store-service |
 
-### Parsing algorithm
+Repo names take precedence over category names. Map common aliases
+(e.g., "common library" → "os-core-common", "search" → "search-service").
 
-1. **Explicit prefix:**
-   - `service:<name>` → clone that single service
-   - `category:<name>` → clone all repos in that category
-   - `all` → clone everything
-
-2. **No prefix — apply precedence:**
-   - **FIRST**: exact repo name match → clone that single repo
-   - **SECOND**: category name match → clone all in category
-   - **OTHERWISE**: report error "Unknown repo or category"
-
-Repo names take precedence over categories.
-
-### URL construction
+## Step 2: Construct the clone URL
 
 Base: `https://community.opengroup.org`
 
@@ -84,80 +57,42 @@ Base: `https://community.opengroup.org`
 | seismic-store-service | `osdu/platform/domain-data-mgmt-services/seismic/seismic-dms-suite/seismic-store-service` |
 | ingestion-workflow | `osdu/platform/data-flow/ingestion/ingestion-workflow` |
 
-## Step 4: Clone each repo
+Construct the full URL: `https://community.opengroup.org/{path}.git`
 
-For each repo, first check if it already exists:
+For categories, construct a URL for each repo in the category.
 
-```bash
-if [ -d "$OSDU_WORKSPACE/$REPO" ]; then
-  echo "Skipping $REPO — already exists"
-  # continue to next repo
-fi
-```
+## Step 3: Run the clone script
 
-Then branch on the detection result from Step 2.
-
-### If USE_WORKTREE=true (bare clone + worktree)
-
-This creates the layout that `wt` expects: a `.bare` directory holding the
-bare repo, a `.git` file pointing at it, and a worktree for the default branch.
+The clone script is bundled with this skill. Find and run it once per repo:
 
 ```bash
-REPO="partition"
-CLONE_URL="https://community.opengroup.org/osdu/platform/system/partition.git"
-
-# 1. Bare clone into .bare
-mkdir -p "$OSDU_WORKSPACE/$REPO"
-git clone --bare "$CLONE_URL" "$OSDU_WORKSPACE/$REPO/.bare"
-
-# 2. Point .git at the bare repo so git/wt commands work from $REPO/
-echo "gitdir: ./.bare" > "$OSDU_WORKSPACE/$REPO/.git"
-
-# 3. Configure fetch refspec (bare clones don't track remotes by default)
-git -C "$OSDU_WORKSPACE/$REPO/.bare" config remote.origin.fetch "+refs/heads/*:refs/remotes/origin/*"
-git -C "$OSDU_WORKSPACE/$REPO/.bare" fetch origin
-
-# 4. Detect default branch and create worktree
-DEFAULT_BRANCH=$(git -C "$OSDU_WORKSPACE/$REPO/.bare" symbolic-ref refs/remotes/origin/HEAD 2>/dev/null | sed 's|refs/remotes/origin/||')
-DEFAULT_BRANCH=${DEFAULT_BRANCH:-master}
-cd "$OSDU_WORKSPACE/$REPO" && git worktree add "$DEFAULT_BRANCH" "$DEFAULT_BRANCH"
+CLONE_SCRIPT=$(find ~/.claude/plugins -path "*/skills/clone/clone.py" -type f 2>/dev/null | head -1)
+uv run "$CLONE_SCRIPT" <URL> [<name>]
 ```
 
-**Resulting layout:**
-```
-$OSDU_WORKSPACE/partition/
-├── .bare/        # bare clone
-├── .git          # file: "gitdir: ./.bare"
-└── master/       # default worktree (working directory)
-```
+The script handles everything automatically:
+- Workspace resolution (`$OSDU_WORKSPACE` or cwd)
+- `wt` / `git-wt` detection (bare clone + worktree if available, standard clone otherwise)
+- Clone execution with skip/fail handling
+- Result reporting
 
-### If USE_WORKTREE=false (standard clone)
+## After Execution
 
-```bash
-REPO="partition"
-CLONE_URL="https://community.opengroup.org/osdu/platform/system/partition.git"
-
-git clone "$CLONE_URL" "$OSDU_WORKSPACE/$REPO"
-```
-
-## Step 5: Verify
-
-```bash
-# Worktree layout — working directory is under $DEFAULT_BRANCH/
-cd "$OSDU_WORKSPACE/$REPO/$DEFAULT_BRANCH" && git log --oneline -1
-
-# Standard layout — working directory is $REPO/ itself
-cd "$OSDU_WORKSPACE/$REPO" && git log --oneline -1
-```
-
-Report: cloned count, skipped (already existed), failures.
+Report to the user:
+- Which repos were cloned, skipped, or failed
+- The clone method used (worktree or standard)
+- For worktree clones, show the layout:
+  ```
+  <repo>/
+    .bare/       ← bare clone
+    .git         ← pointer file
+    <branch>/    ← worktree (ready to work in)
+  ```
 
 ## Working in Cloned Repos
 
 **With worktrunk (`wt`):**
 - `wt switch --create feature/xxx --base master` — create feature branch worktree
-- `wt step commit` — commit with LLM-generated messages
-- `wt step diff` — see changes since branching
 
 **Without worktrunk:**
 - `git checkout -b feature/xxx` — create feature branch
