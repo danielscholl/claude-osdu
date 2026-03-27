@@ -1,0 +1,44 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v6
+
+      - name: Set up Python
+        run: uv python install 3.11
+
+      - name: Run plugin validation tests
+        run: |
+          for plugin_dir in plugins/*/; do
+            plugin=$(basename "$plugin_dir")
+            test_dir="$plugin_dir/tests/unit"
+            if [ -d "$test_dir" ] && ls "$test_dir"/test_*.py >/dev/null 2>&1; then
+              echo ""
+              echo "=== pytest: $plugin ==="
+              (cd "$plugin_dir" && uv run --with pytest pytest tests/unit/ -v --tb=short)
+            fi
+          done
+
+  version-check:
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Check version bumps
+        run: |
+          chmod +x scripts/version.sh
+          ./scripts/version.sh check origin/${{ github.base_ref }}
