@@ -11,39 +11,40 @@ A Claude Code marketplace that bundles specialized agents, skills, and live plat
 Built for OSDU maintainers, platform engineers, QA contributors, and community operators.
 
 | Plugin | Components | What you use it for |
-|---|---|---|
-| **osdu** | @osdu agent, 21 skills | Builds, dependencies, MRs, tests, live platform queries, knowledge management |
-| **cimpl** | @cimpl agent, 3 skills | Terraform, Helm, AKS, debugging, verification |
+|--------|------------|---------------------|
+| **osdu** | `osdu:osdu` agent, 21 skills | Builds, dependencies, MRs, tests, live platform queries, knowledge management |
+| **cimpl** | `cimpl:cimpl` agent, 3 skills | Terraform, Helm, AKS, debugging, verification |
 
-## Getting Started
+## Install
 
 Requires [Claude Code](https://claude.ai/claude-code).
 
 ```bash
-# Install from marketplace
-claude plugin marketplace add https://github.com/danielscholl/claude-osdu
-claude plugin install osdu
-claude plugin install cimpl
+/plugin marketplace add https://github.com/danielscholl/claude-osdu
+/plugin install osdu
+/plugin install cimpl
 ```
 
-### Try It Out
+## Use
 
 ```
 > give me a morning briefing
+> clone partition
 > what pipelines are failing across OSDU?
 > check the health of my environment
 > run acceptance tests for partition
 > review MR !845
+> ship it
 ```
 
-## What's Inside
+## Plugins
 
-**2 plugins**, **24 skills**, and **7 agents** for broad platform operations and deep infrastructure workflows.
+### osdu
 
-### osdu plugin
+Platform operations across 30+ OSDU GitLab services.
 
 | Category | Skills |
-|---|---|
+|----------|--------|
 | Knowledge | brain, briefing, learn, consolidate |
 | Analytics | osdu-activity, osdu-engagement, osdu-quality |
 | Build & Deps | maven, dependency-scan, build-runner, remediate |
@@ -51,35 +52,37 @@ claude plugin install cimpl
 | Git Workflow | send, mr-review, contribute, glab, fossa, maintainer |
 | Workspace | clone, setup |
 
-**Agents:** osdu (orchestrator), build-runner, qa-runner, qa-analyzer, qa-comparator, qa-reporter
+**Agents:** `osdu:osdu` (orchestrator), `osdu:build-runner`, `osdu:qa-runner`, `osdu:qa-analyzer`, `osdu:qa-comparator`, `osdu:qa-reporter`
 
-**MCP Server:** Uses [osdu-mcp-server](https://pypi.org/project/osdu-mcp-server/) for live OSDU platform access (31 tools across search, storage, schema, entitlements, legal, partition)
+**MCP Server:** [osdu-mcp-server](https://pypi.org/project/osdu-mcp-server/) for live platform access (31 tools across search, storage, schema, entitlements, legal, partition)
 
-### cimpl plugin
+### cimpl
+
+Azure infrastructure automation for OSDU Community Implementation deployments.
 
 | Category | Skills |
-|---|---|
+|----------|--------|
 | Infrastructure | iac, health, setup |
 
-**Agent:** cimpl (infrastructure specialist)
+**Agent:** `cimpl:cimpl` (infrastructure specialist)
 
 ## Testing
 
 Uses the [skilltest](https://github.com/danielscholl/claude-sdlc) four-layer test framework.
 
 ```bash
-make test                    # L1 + L2 + pytest (fast)
-make lint                    # L1: Structure validation
-make unit                    # L2: Trigger eval dry-run
-make integration P=osdu      # L3: Multi-turn session tests
-make benchmark P=osdu S=brain  # L4: Skill value comparison
-make report                  # Test inventory
+make test                       # L1 + L2 + pytest (fast)
+make lint                       # L1: Structure validation
+make unit                       # L2: Trigger eval dry-run
+make integration P=osdu         # L3: Multi-turn session tests
+make benchmark P=osdu S=brain   # L4: Skill value comparison
+make report                     # Test inventory
 ```
 
 ## Contributing
 
-See [CONTRIBUTING.md](CONTRIBUTING.md) for development workflow.
+See [CONTRIBUTING.md](CONTRIBUTING.md).
 
 ## License
 
-Licensed under the [Apache License 2.0](LICENSE).
+[Apache License 2.0](LICENSE)
