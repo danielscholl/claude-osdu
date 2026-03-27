@@ -1,0 +1,63 @@
+{
+  "name": "clone-workflow",
+  "description": "Test clone command — direct execution, script usage, alias resolution, skip behavior",
+  "ready_pattern": "❯|\\$|>|claude",
+  "steps": [
+    {
+      "name": "single-repo-clone",
+      "prompt": "clone partition",
+      "timeout": 120,
+      "pause_after": 3,
+      "assertions": [
+        {
+          "pattern": "clone\\.py|uv run",
+          "type": "regex",
+          "description": "Uses the clone.py script"
+        },
+        {
+          "pattern": "community\\.opengroup\\.org/osdu/platform/system/partition",
+          "type": "regex",
+          "description": "Resolves correct GitLab URL for partition"
+        }
+      ]
+    },
+    {
+      "name": "alias-resolution",
+      "prompt": "clone common lib",
+      "timeout": 120,
+      "pause_after": 3,
+      "assertions": [
+        {
+          "pattern": "os-core-common",
+          "type": "regex",
+          "description": "Resolves 'common lib' alias to os-core-common"
+        },
+        {
+          "pattern": "clone\\.py|uv run",
+          "type": "regex",
+          "description": "Uses the clone.py script"
+        }
+      ]
+    },
+    {
+      "name": "no-agent-delegation",
+      "prompt": "clone storage",
+      "timeout": 120,
+      "pause_after": 3,
+      "assertions": [
+        {
+          "pattern": "clone\\.py|uv run|CLONE|SKIP",
+          "type": "regex",
+          "description": "Executes directly without delegation"
+        }
+      ],
+      "negative_assertions": [
+        {
+          "pattern": "Agent type.*not found",
+          "type": "regex",
+          "description": "No agent type errors"
+        }
+      ]
+    }
+  ]
+}

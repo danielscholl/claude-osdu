@@ -4,43 +4,38 @@
     {
       "id": 1,
       "prompt": "clone the partition service",
-      "expected_output": "Repo cloned using bare clone + worktree layout since wt is installed. Directory structure: partition/.bare/ and partition/master/",
+      "expected_output": "Repo cloned using the clone.py script. Directory structure: partition/.bare/ and partition/master/",
       "files": [],
       "expectations": [
-        "Executed clone directly using Bash — did NOT delegate to an agent or sub-agent",
-        "Ran 'command -v wt' or 'which wt' to detect clone method before cloning",
-        "Used 'git clone --bare' (not plain 'git clone')",
-        "Created .bare directory inside the repo folder",
-        "Created a .git file (not directory) with gitdir pointer",
-        "Configured remote.origin.fetch refspec on the bare repo",
-        "Created a worktree for the default branch (master)",
-        "Final layout has $REPO/.bare/ and $REPO/master/"
+        "Did NOT delegate to an agent or sub-agent",
+        "Located and used the clone.py script via uv run",
+        "Resolved the correct GitLab URL for partition",
+        "Script detected wt/git-wt and chose appropriate clone method",
+        "Final layout has partition/.bare/ and partition/master/ (if worktree) or partition/ (if standard)"
       ]
     },
     {
       "id": 2,
       "prompt": "clone common library",
-      "expected_output": "os-core-common cloned using bare clone + worktree layout. Resolved 'common library' to the libraries category or os-core-common repo.",
+      "expected_output": "os-core-common cloned using the clone.py script.",
       "files": [],
       "expectations": [
-        "Executed clone directly using Bash — did NOT delegate to an agent or sub-agent",
-        "Ran clone method detection check before cloning",
-        "Correctly resolved 'common library' to os-core-common (or the libraries category)",
+        "Did NOT delegate to an agent or sub-agent",
+        "Resolved 'common library' to os-core-common",
         "Used the correct GitLab URL: community.opengroup.org/osdu/platform/system/lib/core/os-core-common",
-        "Used bare clone + worktree layout (not plain git clone)",
-        "Created worktree for the default branch"
+        "Located and used the clone.py script via uv run",
+        "Script handled worktree detection and clone automatically"
       ]
     },
     {
       "id": 3,
       "prompt": "clone category:core",
-      "expected_output": "All core services cloned using bare clone + worktree layout. Should clone partition, entitlements, legal, secret, schema-service, storage, file, indexer-service, indexer-queue, search-service, dataset, register, notification.",
+      "expected_output": "All core services cloned using the clone.py script.",
       "files": [],
       "expectations": [
-        "Executed clone directly using Bash — did NOT delegate to an agent or sub-agent",
-        "Ran clone method detection once before starting any clones",
+        "Did NOT delegate to an agent or sub-agent",
         "Resolved category:core to the full list of core services",
-        "Used bare clone + worktree layout for every repo",
+        "Ran clone.py once per repo with the correct URL",
         "Skipped repos that already exist in the workspace",
         "Reported summary: cloned count, skipped, failures"
       ]
