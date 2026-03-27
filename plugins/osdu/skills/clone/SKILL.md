@@ -9,6 +9,9 @@ description: >-
 
 # OSDU Clone Workflow
 
+> **Execute directly. Do NOT delegate to an agent or sub-agent.**
+> This is a self-contained procedural skill — run the commands inline in the current context.
+
 Clone repositories into the OSDU workspace using a step-by-step procedure.
 Follow these steps in order — each step depends on the previous one.
 
