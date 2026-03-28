@@ -1,0 +1,81 @@
+{
+  "skill_name": "osdu-data-load",
+  "evals": [
+    {
+      "query": "load the reference data into my OSDU instance",
+      "should_trigger": true
+    },
+    {
+      "query": "what datasets are available to load?",
+      "should_trigger": true
+    },
+    {
+      "query": "bootstrap my CIMPL environment with test data",
+      "should_trigger": true
+    },
+    {
+      "query": "is reference data loaded on my instance? check how many records are there",
+      "should_trigger": true
+    },
+    {
+      "query": "load the TNO dataset using direct mode",
+      "should_trigger": true
+    },
+    {
+      "query": "I need to populate my OSDU instance with Volve and NOPIMS data for QA testing",
+      "should_trigger": true
+    },
+    {
+      "query": "do a dry run of loading reference-data so I can see what would happen",
+      "should_trigger": true
+    },
+    {
+      "query": "load all the test data into my cluster — I just finished deploying",
+      "should_trigger": true
+    },
+    {
+      "query": "how do I get test data into my OSDU instance?",
+      "should_trigger": true
+    },
+    {
+      "query": "search for wellbore records in my OSDU instance",
+      "should_trigger": false,
+      "note": "Record queries → OSDU MCP tools (search)"
+    },
+    {
+      "query": "clone the data-definitions repo into the workspace",
+      "should_trigger": false,
+      "note": "Repo cloning → clone skill"
+    },
+    {
+      "query": "create a new schema for my custom well data type",
+      "should_trigger": false,
+      "note": "Schema management → OSDU MCP tools (schema)"
+    },
+    {
+      "query": "run the smoke tests on the storage service",
+      "should_trigger": false,
+      "note": "Test execution → osdu-qa"
+    },
+    {
+      "query": "check what legal tags exist in my partition",
+      "should_trigger": false,
+      "note": "Legal tag queries → OSDU MCP tools (legaltag)"
+    },
+    {
+      "query": "build the ingestion-workflow service",
+      "should_trigger": false,
+      "note": "Build execution → build-runner"
+    },
+    {
+      "query": "what merge requests are open for the storage service?",
+      "should_trigger": false,
+      "note": "MR status → osdu-activity"
+    },
+    {
+      "query": "check the health of my deployed environment",
+      "should_trigger": false,
+      "note": "Environment health → cimpl:health"
+    }
+  ]
+}

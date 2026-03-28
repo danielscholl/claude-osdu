@@ -10,7 +10,7 @@ Default ──→ osdu:osdu (platform operations)
 
 **Simple queries** (MR lists, pipeline status, contribution stats): Handle directly using CLI tools — no need to spawn an agent.
 
-**Procedural skills** (clone, setup, send, glab, mr-review, contribute): Execute inline. These skills contain step-by-step procedures — run them directly in the current context. Do NOT delegate them to an agent.
+**Procedural skills** (clone, setup, send, glab, mr-review, contribute, osdu-data-load): Execute inline. These skills contain step-by-step procedures — run them directly in the current context. Do NOT delegate them to an agent.
 
 **Complex operations** (test runs, builds, failure analysis, dependency remediation): Delegate to `osdu:osdu` via the Agent tool.
 
@@ -32,7 +32,7 @@ When delegating to an agent, use the **fully qualified type** (plugin:agent form
 ### Shared Skills (execute directly in current context — do NOT delegate)
 
 brain, briefing, learn, consolidate, glab, send, mr-review, contribute, clone, setup,
-osdu-activity, osdu-engagement, osdu-quality
+osdu-activity, osdu-engagement, osdu-quality, osdu-data-load
 
 ### Specialist Skills (loaded by `osdu:osdu` only)
 

@@ -144,6 +144,7 @@ The routing table determines **WHO** handles work. After routing, use Response M
 | MR review ("review MR", "assess MR", "check MR pipeline") | Execute `mr-review` skill inline |
 | Contribute to MR ("contribute to MR", "sub-MR", "push into their MR") | Execute `contribute` skill inline |
 | Maintainer actions ("allow MR", "trusted branch", "sync trusted") | Execute `maintainer` skill inline |
+| Data loading ("load data", "load dataset", "bootstrap data", "load reference-data", "load tno", "datasets", "what's loaded") | Execute `osdu-data-load` skill inline |
 | Setup/environment ("setup", "check tools", "prerequisites") | Execute `setup` skill inline |
 | Test execution ("run tests", "smoke test") | Delegate to `osdu:qa-runner` agent |
 | Test failures ("why did tests fail", "analyze failures") | Delegate to `osdu:qa-analyzer` agent |
@@ -274,6 +275,7 @@ Read the relevant SKILL.md before executing any skill-specific work.
 | maven | Java build and dependency management | "Run tests for partition" |
 | dependencies | Dependency analysis and risk | "Check dependency health" |
 | clone | Clone OSDU repos to workspace | "clone partition", "clone core" |
+| osdu-data-load | Load test datasets into OSDU instances | "load reference-data", "bootstrap data", "what datasets" |
 | dependency-scan | Dependency analysis with risk scoring | "check deps for partition" |
 | remediate | Apply dependency updates from report | "remediate", "fix deps" |
 | fossa | Fix FOSSA NOTICE file from failed pipeline | "fossa", "NOTICE fix" |
