@@ -1,0 +1,81 @@
+{
+  "name": "osdu-data-load-workflow",
+  "description": "Test data load skill — dataset listing, check, load with direct mode, prerequisite validation",
+  "ready_pattern": "❯|\\$|>|claude",
+  "steps": [
+    {
+      "name": "list-datasets",
+      "prompt": "what datasets can I load into OSDU?",
+      "timeout": 60,
+      "pause_after": 3,
+      "assertions": [
+        {
+          "pattern": "load\\.py.*datasets|uv run.*datasets",
+          "type": "regex",
+          "description": "Uses the load.py script with datasets command"
+        },
+        {
+          "pattern": "reference-data|tno|volve",
+          "type": "regex",
+          "description": "Lists known dataset names"
+        }
+      ]
+    },
+    {
+      "name": "check-loaded-data",
+      "prompt": "check if reference data is loaded",
+      "timeout": 60,
+      "pause_after": 3,
+      "assertions": [
+        {
+          "pattern": "load\\.py.*check|uv run.*check",
+          "type": "regex",
+          "description": "Uses the load.py script with check command"
+        },
+        {
+          "pattern": "reference-data",
+          "type": "regex",
+          "description": "Targets the reference-data dataset"
+        }
+      ]
+    },
+    {
+      "name": "dry-run-load",
+      "prompt": "do a dry run of loading the TNO dataset",
+      "timeout": 60,
+      "pause_after": 3,
+      "assertions": [
+        {
+          "pattern": "load\\.py.*load.*--dry-run|--dry-run.*tno|tno.*--dry-run",
+          "type": "regex",
+          "description": "Uses load command with dry-run flag"
+        },
+        {
+          "pattern": "tno",
+          "type": "regex",
+          "description": "Targets the TNO dataset"
+        }
+      ]
+    },
+    {
+      "name": "no-agent-delegation",
+      "prompt": "load reference-data using direct mode",
+      "timeout": 60,
+      "pause_after": 3,
+      "assertions": [
+        {
+          "pattern": "load\\.py|uv run|LOAD|direct",
+          "type": "regex",
+          "description": "Executes directly without delegation"
+        }
+      ],
+      "negative_assertions": [
+        {
+          "pattern": "Agent type.*not found",
+          "type": "regex",
+          "description": "No agent type errors"
+        }
+      ]
+    }
+  ]
+}
