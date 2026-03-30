@@ -2,68 +2,136 @@
 name: send
 allowed-tools: Bash, Read, Glob, Grep
 description: >-
-  Ship local changes through a review-commit-push-MR workflow using git and glab.
-  Performs a lite code review, runs quality checks, commits with a conventional commit
-  message, pushes to remote, and creates a GitLab merge request.
-  Use when the user wants to send, ship, submit, or push their work, create an MR,
-  or says "send it", "ship it", "push my changes", or "I'm done, send this up".
+  Ship local changes through a review-commit-push workflow. Performs a lite code
+  review, runs quality checks, commits with a conventional commit message, pushes
+  to remote, and creates a merge request (GitLab) or pull request (GitHub).
+  Auto-detects the remote platform and available tools (worktrunk, aipr).
+  Use when the user wants to send, ship, submit, or push their work, create an MR
+  or PR, or says "send it", "ship it", "push my changes", or "I'm done, send this up".
   Not for: reviewing someone else's MR (use mr-review), contributing to another
   developer's MR (use contribute), or setting up tools (use setup).
 ---
 
-# Send: Review, Commit, Push, and Merge Request
+# Send: Review, Commit, Push, and Merge/Pull Request
 
-A workflow that takes local changes from working directory to merge request. Each phase gates the
-next — if something fails, stop and report rather than pushing broken code upstream.
+A workflow that takes local changes from working directory to merge/pull request. Each phase gates
+the next -- if something fails, stop and report rather than pushing broken code upstream.
 
 **IMPORTANT:** All `git` commands in this skill MUST use `--no-pager` to prevent interactive
 paging from hanging the shell.
 
 ## Prerequisites
 
-- `git` — version control
-- `glab` — GitLab CLI (authenticated with the target remote)
+- `git` -- version control
+- **Remote CLI** (auto-detected from remote URL):
+  - GitLab remotes (`opengroup.org`, `gitlab`): requires `glab`
+  - GitHub remotes (`github.com`): requires `gh`
+- **Optional** (graceful degradation if absent):
+  - `wt` ([worktrunk](https://worktrunk.dev)) -- worktree-based branching and commits
+  - `aipr` -- AI-powered commit message generation
 
 ## Phase 0: Preflight
 
-1. Get the current branch:
-   ```bash
-   git branch --show-current
-   ```
-2. **Branch safety:**
-   - `main` or `master`: **STOP**. These are release branches. The user needs to
-     create a feature branch from `dev`.
-   - `dev`: The user is on the integration branch. They cannot MR from `dev` → `dev`. **Ask
-     the user** for a feature name, then create a feature branch:
-     ```bash
-     git checkout -b feature/<user-provided-name>
-     ```
-     Continue the workflow on the new branch.
-   - `feature/*` or any other name: proceed normally.
-3. **Contribution check — am I on someone else's MR branch?**
-   Check if the current branch has an open MR where you are NOT the author:
-   ```bash
-   glab api "projects/:id/merge_requests?source_branch=$(git branch --show-current)&state=opened" \
-     --hostname community.opengroup.org 2>/dev/null
-   ```
-   If an open MR exists and the author is not the current user, the user may intend to
-   contribute to that MR rather than create a new one. Ask: "You're on the `<branch>` branch
-   from MR !X by `<author>`. Do you want to contribute these changes to that MR, or create
-   a separate MR?" If they want to contribute, hand off to the `contribute` skill.
-4. Check for changes:
-   ```bash
-   git --no-pager status --short
-   ```
-   If clean, also check for unpushed commits:
-   ```bash
-   git --no-pager log --oneline @{upstream}..HEAD 2>/dev/null
-   ```
-   If both are clean, **STOP** — nothing to send. If there are unpushed commits but no local
-   changes, skip to Phase 4 (Push).
+### 0a. Detect environment
+
+Run these once at the start. The results gate all later phases.
+
+**Remote platform:**
+```bash
+REMOTE_URL=$(git remote get-url origin 2>/dev/null)
+if echo "$REMOTE_URL" | grep -q "github\.com"; then
+  PLATFORM=github
+elif echo "$REMOTE_URL" | grep -qE "opengroup\.org|gitlab"; then
+  PLATFORM=gitlab
+else
+  PLATFORM=unknown
+fi
+```
+
+**Worktree tool:**
+```bash
+if command -v wt >/dev/null 2>&1 || command -v git-wt >/dev/null 2>&1; then
+  HAS_WT=true
+else
+  HAS_WT=false
+fi
+```
+
+**Commit tool** (prefer `wt step commit` > `aipr` > manual):
+```bash
+if [ "$HAS_WT" = true ]; then
+  COMMIT_TOOL=wt
+elif command -v aipr >/dev/null 2>&1; then
+  COMMIT_TOOL=aipr
+else
+  COMMIT_TOOL=manual
+fi
+```
+
+### 0b. Get the current branch
+
+```bash
+git branch --show-current
+```
+
+### 0c. Branch safety
+
+- `main` or `master`: **STOP**. These are release branches. The user needs to
+  create a feature branch.
+- `dev`: The user is on the integration branch. They cannot merge from `dev` to `dev`.
+  **Ask the user** for a feature name, then create a feature branch:
+
+  **With `wt`** (worktree layout):
+  ```bash
+  wt switch --create feature/<user-provided-name> --base dev
+  ```
+  > This changes the working directory to a new worktree path. All subsequent
+  > commands run from the new directory.
+
+  **Without `wt`** (standard clone):
+  ```bash
+  git checkout -b feature/<user-provided-name>
+  ```
+
+  Continue the workflow on the new branch.
+
+- `feature/*` or any other name: proceed normally.
+
+### 0d. Contribution check -- am I on someone else's branch?
+
+**GitLab:**
+```bash
+glab api "projects/:id/merge_requests?source_branch=$(git branch --show-current)&state=opened" \
+  --hostname community.opengroup.org 2>/dev/null
+```
+
+**GitHub:**
+```bash
+gh pr list --head "$(git branch --show-current)" --state open --json number,author 2>/dev/null
+```
+
+If an open MR/PR exists and the author is not the current user, ask: "You're on the
+`<branch>` branch from MR/PR #X by `<author>`. Do you want to contribute these changes
+to that MR/PR, or create a separate one?" If they want to contribute, hand off to the
+`contribute` skill.
+
+### 0e. Check for changes
+
+```bash
+git --no-pager status --short
+```
+
+If clean, also check for unpushed commits:
+```bash
+git --no-pager log --oneline @{upstream}..HEAD 2>/dev/null
+```
+
+If both are clean, **STOP** -- nothing to send. If there are unpushed commits but no local
+changes, skip to Phase 4 (Push).
 
 ## Phase 1: Lite Code Review
 
-A quick sanity check — catch obvious problems before they become MR comments.
+A quick sanity check -- catch obvious problems before they become review comments.
 
 1. View the full diff:
    ```bash
@@ -80,7 +148,7 @@ A quick sanity check — catch obvious problems before they become MR comments.
 
 ## Phase 2: Quality Checks
 
-Run checks based on which file types changed — skip checks that don't apply.
+Run checks based on which file types changed -- skip checks that don't apply.
 
 - **Terraform** (`.tf` files changed):
   ```bash
@@ -96,26 +164,46 @@ If any check fails, **STOP** and report. Do not proceed to commit.
 
 ## Phase 3: Commit
 
-Stage changes and generate a conventional commit message directly.
+Stage changes and create a conventional commit. The method depends on which tools
+are available (detected in Phase 0a).
+
+### Option A: `wt step commit` (if `HAS_WT=true`)
+
+worktrunk handles staging, diff analysis, and message generation:
+```bash
+wt step commit
+```
+Review the generated message -- if it doesn't follow the commit rules below, amend.
+
+### Option B: `aipr commit -s` (if `aipr` is available)
+
+```bash
+git add -A
+git commit -m "$(aipr commit -s)"
+```
+
+### Option C: Manual commit (fallback)
 
 ```bash
 git add -A
 ```
 
-Generate the commit message directly using conventional commit format based on the staged diff. Analyze the changes and produce a message following these rules:
-
-**Commit rules — these are hard requirements:**
-- **One-line summary** under 72 characters: `type(scope): description`
-- Types: feat fix docs refactor chore ci style test build perf
-- Use imperative mood (add, implement, fix — not adds, added, adding)
-- Add 1-2 detail lines only for large changes (15+ files). Max 3 lines total.
-- **NEVER** add `Co-Authored-By` trailers — not for any AI or agent
-- **NEVER** add "Generated with", "Built by", or any agent/AI attribution
-- **NEVER** add `Signed-off-by` unless the user explicitly requests DCO sign-off
+Generate the commit message directly using conventional commit format based on the
+staged diff.
 
 ```bash
 git commit -m "<generated message>"
 ```
+
+### Commit rules -- hard requirements (apply to ALL options)
+
+- **One-line summary** under 72 characters: `type(scope): description`
+- Types: feat fix docs refactor chore ci style test build perf
+- Use imperative mood (add, implement, fix -- not adds, added, adding)
+- Add 1-2 detail lines only for large changes (15+ files). Max 3 lines total.
+- **NEVER** add `Co-Authored-By` trailers -- not for any AI or agent
+- **NEVER** add "Generated with", "Built by", or any agent/AI attribution
+- **NEVER** add `Signed-off-by` unless the user explicitly requests DCO sign-off
 
 ## Phase 4: Push
 
@@ -124,40 +212,71 @@ Push the branch to the remote:
 git push -u origin $(git branch --show-current)
 ```
 
-## Phase 5: Merge Request
+## Phase 5: Merge / Pull Request
 
-1. Check for an existing MR:
-   ```bash
-   glab mr list --source-branch="$(git branch --show-current)"
-   ```
-2. If an MR already exists, report its URL and skip creation.
-3. Get the current GitLab username for assignment:
-   ```bash
-   ASSIGNEE=$(glab auth status 2>&1 | grep 'Logged in' | sed 's/.* as \([^ ]*\).*/\1/')
-   ```
-4. Determine the MR title from the most recent commit (or summarize if multiple commits):
-   ```bash
-   TITLE=$(git --no-pager log -1 --format='%s')
-   ```
-5. Generate the MR description directly. Analyze the commit log and diff stats to produce a
-   description that explains the *why*, not just the *what*:
-   ```bash
-   DIFF_STATS=$(git --no-pager diff --stat origin/dev..HEAD)
-   COMMITS=$(git --no-pager log origin/dev..HEAD --format='%s%n%b')
-   ```
-   Use the [MR Description Prompt Reference](references/mr-description-prompt.md) as a guide
-   for the description structure. Generate the description text directly based on the commit
-   log and diff stats.
-6. Create the MR, assigning the current user:
-   ```bash
-   glab mr create \
-     --title "$TITLE" \
-     --description "$BODY" \
-     --target-branch dev \
-     --assignee "$ASSIGNEE" \
-     --remove-source-branch
-   ```
-7. Report the MR URL to the user.
+### 5a. Check for an existing MR/PR
+
+**GitLab:**
+```bash
+glab mr list --source-branch="$(git branch --show-current)"
+```
+
+**GitHub:**
+```bash
+gh pr list --head "$(git branch --show-current)" --state open
+```
+
+If one already exists, report its URL and skip creation.
+
+### 5b. Determine the target branch
+
+Default target: `dev` (OSDU convention). If no `dev` branch exists on the remote, fall
+back to `main` or `master`:
+```bash
+git --no-pager ls-remote --heads origin dev main master 2>/dev/null
+```
+Use the first branch that exists, in order: `dev`, `main`, `master`.
+
+### 5c. Determine the title
+
+From the most recent commit (or summarize if multiple commits):
+```bash
+TITLE=$(git --no-pager log -1 --format='%s')
+```
+
+### 5d. Generate the description
+
+Analyze the commit log and diff stats to produce a description:
+```bash
+DIFF_STATS=$(git --no-pager diff --stat origin/$TARGET_BRANCH..HEAD)
+COMMITS=$(git --no-pager log origin/$TARGET_BRANCH..HEAD --format='%s%n%b')
+```
+
+Use the [MR Description Prompt Reference](references/mr-description-prompt.md) as a guide
+for the description structure. Generate the description text directly.
+
+### 5e. Create the MR/PR
+
+**GitLab:**
+```bash
+ASSIGNEE=$(glab auth status 2>&1 | grep 'Logged in' | sed 's/.* as \([^ ]*\).*/\1/')
+glab mr create \
+  --title "$TITLE" \
+  --description "$BODY" \
+  --target-branch "$TARGET_BRANCH" \
+  --assignee "$ASSIGNEE" \
+  --remove-source-branch
+```
+
+**GitHub:**
+```bash
+gh pr create \
+  --title "$TITLE" \
+  --body "$BODY" \
+  --base "$TARGET_BRANCH"
+```
+
+### 5f. Report the MR/PR URL to the user.
 
 ## Final Summary
 
@@ -166,6 +285,6 @@ After all phases complete, present a compact summary:
 ```
 Review:  <clean or list of concerns addressed>
 Commit:  <short-hash> <commit message>
-Branch:  <branch-name> → pushed to origin
-MR:      <MR URL>
+Branch:  <branch-name> -> pushed to origin
+MR/PR:   <URL>
 ```
