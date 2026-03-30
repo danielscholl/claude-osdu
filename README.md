@@ -20,9 +20,10 @@ Built for OSDU maintainers, platform engineers, QA contributors, and community o
 Requires [Claude Code](https://claude.ai/claude-code).
 
 ```bash
-/plugin marketplace add https://github.com/danielscholl/claude-osdu
-/plugin install osdu
-/plugin install cimpl
+/plugin marketplace add danielscholl/claude-osdu
+/plugin install osdu@claude-osdu
+/plugin install cimpl@claude-osdu
+/reload-plugins
 ```
 
 ## Use
