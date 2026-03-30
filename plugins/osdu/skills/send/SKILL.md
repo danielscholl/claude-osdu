@@ -20,6 +20,26 @@ the next -- if something fails, stop and report rather than pushing broken code 
 **IMPORTANT:** All `git` commands in this skill MUST use `--no-pager` to prevent interactive
 paging from hanging the shell.
 
+## Argument Handling
+
+Parse `$ARGUMENTS` (appended at the bottom of this skill) to extract the user's **intent**.
+
+- **No arguments**: Proceed normally -- auto-generate everything.
+- **Arguments provided** (e.g., `feat: add repo argument support to prime command`):
+  Store as `INTENT` and use it throughout:
+  - **Branch name** (Phase 0d): derive a slug from the intent
+  - **Commit message** (Phase 3): use as the commit subject if it follows conventional
+    commit format (`type: description` or `type(scope): description`), otherwise use it
+    as input to the commit tool
+  - **PR/MR title** (Phase 5): use as the title
+
+**Deriving a branch slug from intent:**
+Strip conventional commit prefix if present (`feat: `, `fix(scope): `, etc.), lowercase,
+replace spaces and special characters with hyphens, collapse consecutive hyphens, truncate
+to 50 characters, strip leading/trailing hyphens.
+
+Example: `feat: add repo argument support to prime command` → `add-repo-argument-support-to-prime`
+
 ## Prerequisites
 
 - `git` -- version control
@@ -30,11 +50,28 @@ paging from hanging the shell.
   - `wt` ([worktrunk](https://worktrunk.dev)) -- worktree-based branching and commits
   - `aipr` -- AI-powered commit message generation
 
+**Sandbox note:** In bare repo worktree layouts (`.bare/` directory), branch creation writes
+to `.bare/refs/heads/`. This may require sandbox write access to the repo's `.bare/` path.
+
 ## Phase 0: Preflight
 
-### 0a. Detect environment
+### 0a. Check for changes (bail early if nothing to send)
 
-Run these once at the start. The results gate all later phases.
+```bash
+git --no-pager status --short
+```
+
+If clean, also check for unpushed commits:
+```bash
+git --no-pager log --oneline @{upstream}..HEAD 2>/dev/null
+```
+
+If both are clean, **STOP** -- nothing to send. If there are unpushed commits but no local
+changes, skip to Phase 4 (Push).
+
+### 0b. Detect environment
+
+Run these checks. The results gate all later phases.
 
 **Remote platform:**
 ```bash
@@ -47,6 +84,17 @@ else
   PLATFORM=unknown
 fi
 ```
+
+**Bare repo / worktree layout:**
+```bash
+IS_BARE_WORKTREE=false
+if [ -f .git ]; then
+  IS_BARE_WORKTREE=true
+fi
+```
+
+This matters for branch naming -- bare repos cannot use slashes in branch names because
+they create subdirectories under `.bare/refs/heads/` which may conflict or fail.
 
 **Worktree tool:**
 ```bash
@@ -68,36 +116,48 @@ else
 fi
 ```
 
-### 0b. Get the current branch
+### 0c. Get the current branch
 
 ```bash
 git branch --show-current
 ```
 
-### 0c. Branch safety
+### 0d. Branch safety
 
-- `main` or `master`: **STOP**. These are release branches. The user needs to
-  create a feature branch.
-- `dev`: The user is on the integration branch. They cannot merge from `dev` to `dev`.
-  **Ask the user** for a feature name, then create a feature branch:
+**Branch naming rules** (gated by `IS_BARE_WORKTREE`):
+- `IS_BARE_WORKTREE=true`: use **flat names** with hyphens (e.g., `add-repo-argument-support`)
+- `IS_BARE_WORKTREE=false`: use **slashed names** (e.g., `feature/add-repo-argument-support`)
 
-  **With `wt`** (worktree layout):
-  ```bash
-  wt switch --create feature/<user-provided-name> --base dev
-  ```
-  > This changes the working directory to a new worktree path. All subsequent
-  > commands run from the new directory.
+**On `main` or `master`:**
+These are release branches -- changes must go on a feature branch.
 
-  **Without `wt`** (standard clone):
-  ```bash
-  git checkout -b feature/<user-provided-name>
-  ```
+If `INTENT` is available (from ARGUMENTS), auto-derive a branch name from the slug and
+create the branch without asking the user:
 
-  Continue the workflow on the new branch.
+```bash
+# Example for bare worktree with INTENT slug "add-repo-argument-support"
+git checkout -b add-repo-argument-support
+# Example for standard clone
+git checkout -b feature/add-repo-argument-support
+```
 
-- `feature/*` or any other name: proceed normally.
+If no INTENT, ask the user for a feature name, then create the branch.
 
-### 0d. Contribution check -- am I on someone else's branch?
+**On `dev`:**
+The user is on the integration branch -- cannot merge from `dev` to `dev`. Same logic as
+above: auto-derive from INTENT if available, otherwise ask.
+
+When using `wt` for branch creation:
+```bash
+# wt always uses flat names for worktree directory names
+wt switch --create <slug> --base dev
+```
+> This changes the working directory to a new worktree path. All subsequent
+> commands run from the new directory.
+
+**On `feature/*` or any other name:** proceed normally.
+
+### 0e. Contribution check -- am I on someone else's branch?
 
 **GitLab:**
 ```bash
@@ -114,20 +174,6 @@ If an open MR/PR exists and the author is not the current user, ask: "You're on 
 `<branch>` branch from MR/PR #X by `<author>`. Do you want to contribute these changes
 to that MR/PR, or create a separate one?" If they want to contribute, hand off to the
 `contribute` skill.
-
-### 0e. Check for changes
-
-```bash
-git --no-pager status --short
-```
-
-If clean, also check for unpushed commits:
-```bash
-git --no-pager log --oneline @{upstream}..HEAD 2>/dev/null
-```
-
-If both are clean, **STOP** -- nothing to send. If there are unpushed commits but no local
-changes, skip to Phase 4 (Push).
 
 ## Phase 1: Lite Code Review
 
@@ -148,7 +194,8 @@ A quick sanity check -- catch obvious problems before they become review comment
 
 ## Phase 2: Quality Checks
 
-Run checks based on which file types changed -- skip checks that don't apply.
+Run checks based on which file types changed -- skip checks that don't apply. Only run a
+check if the relevant tool is available.
 
 - **Terraform** (`.tf` files changed):
   ```bash
@@ -159,13 +206,27 @@ Run checks based on which file types changed -- skip checks that don't apply.
   ```bash
   git --no-pager diff --name-only --diff-filter=ACM -- '*.yaml' '*.yml' | xargs -I{} python3 -c "import yaml, sys; yaml.safe_load(open(sys.argv[1]))" {}
   ```
+- **JSON** (`.json` files changed):
+  ```bash
+  git --no-pager diff --name-only --diff-filter=ACM -- '*.json' | xargs -I{} python3 -c "import json, sys; json.load(open(sys.argv[1]))" {}
+  ```
+- **Python** (`.py` files changed) -- syntax check only:
+  ```bash
+  git --no-pager diff --name-only --diff-filter=ACM -- '*.py' | xargs -I{} python3 -m py_compile {}
+  ```
+- **Java** (`pom.xml` exists and `.java` files changed) -- compile check only:
+  ```bash
+  mvn compile -q 2>/dev/null
+  ```
 
 If any check fails, **STOP** and report. Do not proceed to commit.
 
 ## Phase 3: Commit
 
 Stage changes and create a conventional commit. The method depends on which tools
-are available (detected in Phase 0a).
+are available (detected in Phase 0b). If INTENT is available and already follows
+conventional commit format, prefer using it as the commit message rather than
+auto-generating -- the user told you what this change is.
 
 ### Option A: `wt step commit` (if `HAS_WT=true`)
 
@@ -174,6 +235,9 @@ worktrunk handles staging, diff analysis, and message generation:
 wt step commit
 ```
 Review the generated message -- if it doesn't follow the commit rules below, amend.
+
+**If `wt step commit` fails** (non-zero exit), fall through to Option B or C. Don't stop
+the workflow because of a tool failure when alternatives exist.
 
 ### Option B: `aipr commit -s` (if `aipr` is available)
 
@@ -188,11 +252,13 @@ git commit -m "$(aipr commit -s)"
 git add -A
 ```
 
-Generate the commit message directly using conventional commit format based on the
-staged diff.
+If INTENT is available and matches conventional commit format (`type: ...` or
+`type(scope): ...`), use it directly as the commit message. Otherwise, generate
+the message from the staged diff using the
+[Commit Prompt Reference](references/commit-prompt.md).
 
 ```bash
-git commit -m "<generated message>"
+git commit -m "<message>"
 ```
 
 ### Commit rules -- hard requirements (apply to ALL options)
@@ -239,7 +305,8 @@ Use the first branch that exists, in order: `dev`, `main`, `master`.
 
 ### 5c. Determine the title
 
-From the most recent commit (or summarize if multiple commits):
+If INTENT is available and follows conventional commit format, use it as the title.
+Otherwise, derive from the most recent commit (or summarize if multiple commits):
 ```bash
 TITLE=$(git --no-pager log -1 --format='%s')
 ```
@@ -253,7 +320,8 @@ COMMITS=$(git --no-pager log origin/$TARGET_BRANCH..HEAD --format='%s%n%b')
 ```
 
 Use the [MR Description Prompt Reference](references/mr-description-prompt.md) as a guide
-for the description structure. Generate the description text directly.
+for the description structure. When INTENT is available, incorporate the user's stated
+purpose into the Summary section as the "why" -- don't just describe the diff mechanically.
 
 ### 5e. Create the MR/PR
 

@@ -9,7 +9,42 @@ Build a lightweight understanding of the current OSDU workspace state.
 **IMPORTANT:** Minimize context usage -- aim for under 15k tokens total. Do NOT read
 source code, test files, or agent definitions. Do NOT launch subagents.
 
-## Phase 1: Workspace Discovery
+## Argument Handling
+
+Parse `$ARGUMENTS` to determine mode:
+
+- **No argument**: Full workspace scan (all phases below).
+- **Repo name provided** (e.g., `osdu-spi-infra`): Focus on that single repo. Skip Phase 1
+  full scan and Phase 4 plugin inventory. Run Phases 2, 3 (targeted), and 5 (targeted).
+
+When a repo name is given, resolve its path:
+```bash
+OSDU_WORKSPACE="${OSDU_WORKSPACE:-$(pwd)}"
+REPO_NAME="<argument>"  # from $ARGUMENTS
+REPO_PATH=""
+
+# Check worktree layout first
+if [ -d "$OSDU_WORKSPACE/$REPO_NAME/.bare" ]; then
+  REPO_PATH="$OSDU_WORKSPACE/$REPO_NAME"
+  LAYOUT="worktree"
+  # Find the default worktree (main, master, or first available)
+  for branch in main master; do
+    if [ -d "$REPO_PATH/$branch" ]; then
+      WORK_DIR="$REPO_PATH/$branch"
+      break
+    fi
+  done
+  [ -z "$WORK_DIR" ] && WORK_DIR=$(ls -d "$REPO_PATH"/*/ 2>/dev/null | grep -v '/\.' | head -1)
+elif [ -d "$OSDU_WORKSPACE/$REPO_NAME/.git" ]; then
+  REPO_PATH="$OSDU_WORKSPACE/$REPO_NAME"
+  WORK_DIR="$REPO_PATH"
+  LAYOUT="standard"
+fi
+```
+
+If the repo is not found, report the error and list available repos.
+
+## Phase 1: Workspace Discovery (skip if repo argument given)
 
 Determine the workspace root and scan for cloned repos.
 
@@ -50,9 +85,25 @@ for tool in wt git glab gh aipr osdu-activity osdu-engagement osdu-quality uv tr
 done
 ```
 
-## Phase 3: Current Context
+## Phase 3: Repo Context
 
-If inside a specific repo (not at workspace root), show:
+**If a repo argument was given**, show detailed context for that repo:
+
+```bash
+# Run from the resolved WORK_DIR
+git -C "$WORK_DIR" branch --show-current 2>/dev/null
+git -C "$WORK_DIR" --no-pager status --short 2>/dev/null
+git -C "$WORK_DIR" --no-pager log --oneline -5 2>/dev/null
+```
+
+Also show:
+- **Worktree branches**: list all worktree directories if worktree layout
+- **Remote URL**: `git -C "$WORK_DIR" remote get-url origin 2>/dev/null`
+- **Build system**: check for pom.xml, package.json, Makefile, build.gradle
+- **CLAUDE.md**: note if present (do not read contents)
+- **Key directories**: `ls` top-level dirs only (one line)
+
+**If no argument and inside a specific repo** (not at workspace root), show:
 
 ```bash
 git branch --show-current 2>/dev/null
@@ -60,9 +111,9 @@ git --no-pager status --short 2>/dev/null
 git --no-pager log --oneline -3 2>/dev/null
 ```
 
-If at workspace root, skip this phase.
+If at workspace root with no argument, skip this phase.
 
-## Phase 4: Plugin Inventory
+## Phase 4: Plugin Inventory (skip if repo argument given)
 
 List what the osdu plugin provides -- **names only**, do not read contents.
 
@@ -73,7 +124,23 @@ List what the osdu plugin provides -- **names only**, do not read contents.
 
 ## Phase 5: Summary
 
-Present a compact overview:
+**If a repo argument was given**, present a focused repo overview:
+
+```
+Repo:       <name> (<worktree|standard> layout)
+Path:       <path>
+Branch:     <current branch>
+Worktrees:  <list of worktree branches, if applicable>
+Remote:     <origin URL>
+Build:      <Maven|Node|Make|Gradle|unknown>
+Status:     <clean | N modified files>
+Recent:     <last 3 commit subjects>
+
+Suggested next actions:
+  - <based on repo state>
+```
+
+**If no argument**, present a compact workspace overview:
 
 ```
 Workspace:  <path> — <N> repos (<worktree|standard> layout)
