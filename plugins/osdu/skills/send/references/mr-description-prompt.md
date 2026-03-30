@@ -5,7 +5,7 @@ description directly based on the commit log and diff stats.
 
 ## Prompt
 
-Generate a GitLab merge request description in markdown from the commit log and diff stats
+Generate a merge/pull request description in markdown from the commit log and diff stats
 provided below.
 
 Structure:

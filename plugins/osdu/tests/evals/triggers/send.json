@@ -26,11 +26,19 @@
       "should_trigger": true
     },
     {
-      "query": "I'm finished, help me get this into a merge request on GitLab",
+      "query": "I'm finished, help me get this into a merge request",
       "should_trigger": true
     },
     {
       "query": "send this up, I need to get it reviewed before end of day",
+      "should_trigger": true
+    },
+    {
+      "query": "push my changes and open a pull request on GitHub",
+      "should_trigger": true
+    },
+    {
+      "query": "create a PR for this feature branch",
       "should_trigger": true
     },
     {
@@ -56,37 +64,42 @@
     {
       "query": "how do I use the glab command to add a comment to a merge request?",
       "should_trigger": false,
-      "note": "glab syntax help → glab"
+      "note": "glab syntax help -> glab"
     },
     {
       "query": "run the smoke tests on cimpl/lab",
       "should_trigger": false,
-      "note": "Test execution → osdu-qa"
+      "note": "Test execution -> osdu-qa"
     },
     {
       "query": "check the dependencies for os-storage and find critical CVEs",
       "should_trigger": false,
-      "note": "Dependencies → dependency-scan"
+      "note": "Dependencies -> dependency-scan"
     },
     {
       "query": "add a readiness probe to the partition helm chart",
       "should_trigger": false,
-      "note": "Infrastructure → iac"
+      "note": "Infrastructure -> iac"
     },
     {
       "query": "who are the top contributors to OSDU this quarter?",
       "should_trigger": false,
-      "note": "Contributors → osdu-engagement"
+      "note": "Contributors -> osdu-engagement"
     },
     {
       "query": "build the partition service with maven",
       "should_trigger": false,
-      "note": "Build execution → maven/build-runner"
+      "note": "Build execution -> maven/build-runner"
+    },
+    {
+      "query": "review the latest pull request on my GitHub repo",
+      "should_trigger": false,
+      "note": "PR review -> mr-review"
     },
     {
       "query": "what should I focus on today?",
       "should_trigger": false,
-      "note": "Briefing → default context"
+      "note": "Briefing -> default context"
     }
   ]
 }

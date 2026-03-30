@@ -1,6 +1,6 @@
 {
   "name": "send-workflow",
-  "description": "Test send skill — understands the review-commit-push-MR workflow and worktrunk patterns",
+  "description": "Test send skill — understands the review-commit-push workflow, worktrunk patterns, and platform detection",
   "ready_pattern": "❯|\\$|>|claude",
   "steps": [
     {
@@ -10,9 +10,9 @@
       "pause_after": 3,
       "assertions": [
         {
-          "pattern": "review|commit|push|merge request|MR",
+          "pattern": "review|commit|push|merge request|MR|pull request|PR",
           "type": "regex",
-          "description": "Describes the review-commit-push-MR workflow"
+          "description": "Describes the review-commit-push-MR/PR workflow"
         }
       ]
     },
@@ -36,9 +36,22 @@
       "pause_after": 3,
       "assertions": [
         {
-          "pattern": "feature|worktree|cannot|shouldn't|create.*branch|switch",
+          "pattern": "feature|worktree|wt switch|cannot|shouldn't|create.*branch|switch",
           "type": "regex",
           "description": "Knows dev branch is not for direct MRs"
+        }
+      ]
+    },
+    {
+      "name": "platform-awareness",
+      "prompt": "if I'm working on a GitHub repo instead of GitLab, does the send workflow still work?",
+      "timeout": 180,
+      "pause_after": 3,
+      "assertions": [
+        {
+          "pattern": "github|gh pr|detect|remote|platform",
+          "type": "regex",
+          "description": "Knows the skill auto-detects GitHub vs GitLab"
         }
       ]
     },
