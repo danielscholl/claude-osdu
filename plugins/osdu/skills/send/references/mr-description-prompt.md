@@ -17,6 +17,8 @@ Structure:
    breaking changes, migration steps, dependencies, or things that need manual verification.
 
 Rules:
+- If the user provided an intent string, incorporate their stated purpose into the
+  Summary as the "why" -- don't just describe the diff mechanically
 - Write for a reviewer who knows the codebase but hasn't seen this branch
 - Lead with the "why", not the "what"
 - Be specific — "add Redis cluster deployment" not "update platform"

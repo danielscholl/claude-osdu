@@ -28,4 +28,10 @@ Analysis strategy:
 3. For multi-feature changes, summarize the overall scope
 4. Extract scope from directory names or functional areas
 
+Intent override:
+- If the user provided an intent string (from ARGUMENTS), use it as the basis for the
+  commit subject line
+- If it already follows conventional commit format (type: description), use it directly
+- If not, wrap it with the appropriate type prefix based on diff analysis
+
 Output ONLY the commit message lines. No quotes, no explanation, no markdown fences, no preamble.
