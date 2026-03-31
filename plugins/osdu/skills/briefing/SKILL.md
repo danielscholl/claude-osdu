@@ -2,8 +2,8 @@
 name: briefing
 allowed-tools: Bash, Read, Write, Glob
 description: >-
-  Generate daily OSDU briefing notes by aggregating GitLab MRs, vault goals, and brain
-  knowledge into an insightful daily note.
+  Generate daily OSDU briefing notes by aggregating GitLab MRs, SPI fork health, vault
+  goals, and brain knowledge into an insightful daily note.
   Use when the user says "gm", "good morning", "briefing", "daily briefing", "morning
   standup", "what's on my plate", or "start my day".
   Not for: ad-hoc status checks or single-service queries.
@@ -52,6 +52,9 @@ uv run skills/briefing/scripts/daily-briefing.py --dry-run
 
 # Generate for a specific date
 uv run skills/briefing/scripts/daily-briefing.py --date 2026-02-15
+
+# Skip SPI fork health collection (faster)
+uv run skills/briefing/scripts/daily-briefing.py --skip-spi
 ```
 
 ## Data Sources
@@ -59,6 +62,7 @@ uv run skills/briefing/scripts/daily-briefing.py --date 2026-02-15
 | Source | Tool | What it gathers |
 |--------|------|-----------------|
 | GitLab upstream | `osdu-activity` CLI | Your MRs, all open MRs, pipeline status |
+| SPI forks | `gh` CLI | Fork health: issues, PRs, sync status, workflow conclusions across 8 repos |
 | Obsidian vault | File system | Goals (`01-goals/`), projects (`02-projects/`) |
 | Brain knowledge | QMD or file scan | Reports, RCAs, decisions, architecture notes, strategy docs |
 | Azure environment | `azd` / `az` CLI | CIMPL cluster health |
@@ -71,6 +75,7 @@ Writes a daily note to `$VAULT/00-inbox/YYYY-MM-DD.md` containing:
 - Goal progress (auto-measured from vault checkboxes)
 - Per-project status with tasks and blockers
 - CIMPL environment health
+- SPI fork health table with alerts (human-required, cascade-blocked, workflow failures)
 - GitLab MR tables (yours + recent)
 - Rule-based recommendations, risks, and delegation routing
 - Brain context section (agent-populated — see below)
@@ -108,6 +113,7 @@ For each active area in today's briefing, look for relevant brain context:
 | Today's data | Brain knowledge to search for |
 |-------------|-------------------------------|
 | Failing MR on service X | Past RCAs for that service (`04-reports/rca/`), known issues |
+| SPI fork alerts | Fork management RCAs, cascade history, upstream sync patterns |
 | Goal at 0% progress | Related project notes, blockers, strategy docs |
 | CIMPL environment status | Deployment history, architecture decisions, audit findings |
 | Dependency MRs | Dependency reports, CVE coordination plans |
@@ -137,6 +143,10 @@ Good morning. It's [Day], [Date].
 "[Quote]"
    — [Attribution]
 
+SPI FORKS (GitHub)
+  | Service | Issues | PRs | Sync | Workflow | Alerts |
+  [table rows — highlight human-required, cascade-blocked, failing workflows]
+
 OSDU PLATFORM (GitLab upstream)
   YOUR MRs:
     > [!nnn](url) [service] — [Role] / [pipeline status] (Xd old)
@@ -156,8 +166,8 @@ BRAIN INSIGHTS
   These should be actionable: "X relates to Y, which suggests Z"
 
 WHAT I'D START
-  1. [Action] → [self / @osdu / @cimpl]  — [why, informed by brain context]
-  2. [Action] → [self / @osdu / @cimpl]  — [why]
+  1. [Action] → [self / @osdu / @cimpl / @spi]  — [why, informed by brain context]
+  2. [Action] → [self / @osdu / @cimpl / @spi]  — [why]
 ```
 
 End with: "Want me to kick off any of these?"
@@ -195,6 +205,9 @@ If multiple recent MRs cluster around the same area or initiative that the brain
 ## Requirements
 
 - `osdu-activity` CLI installed (for GitLab data)
+- `gh` CLI authenticated to GitHub (for SPI fork health; degrades gracefully if missing)
 - Python >= 3.11 (via `uv run`)
+- Optional: `SPI_ORG` env var to override GitHub org (default: `azure`)
+- Optional: `SPI_SERVICES` env var to override service list (space-separated)
 - Optional: `qmd` CLI for fast brain knowledge search (falls back to file scan)
 - Optional: `AZURE_OPENAI_ENDPOINT` + `AZURE_API_KEY` env vars for AI-generated quotes

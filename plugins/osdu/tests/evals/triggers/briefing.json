@@ -38,6 +38,20 @@
       "should_trigger": true
     },
     {
+      "query": "morning briefing — include the SPI fork status and any cascade issues",
+      "should_trigger": true
+    },
+    {
+      "query": "what's the status of the SPI forks — any blocked cascades or failing workflows?",
+      "should_trigger": false,
+      "note": "Specific SPI status check → spi:status skill, not a full briefing"
+    },
+    {
+      "query": "resolve the human-required issue on osdu-spi-entitlements",
+      "should_trigger": false,
+      "note": "Fork conflict resolution → spi:forks skill"
+    },
+    {
       "query": "put this in the vault — we decided to use AVM modules for all new Terraform",
       "should_trigger": false,
       "note": "Vault write → brain"

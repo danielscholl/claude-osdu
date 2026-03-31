@@ -17,7 +17,7 @@
 # limitations under the License.
 """Daily briefing generator for the agent.
 
-Gathers data from GitLab (osdu-activity),
+Gathers data from GitLab (osdu-activity), SPI fork health (gh CLI),
 reads the task board and goals from the Obsidian vault,
 and writes a formatted daily note to $OSDU_BRAIN/00-inbox/ (default: ~/.osdu-brain).
 
@@ -25,6 +25,7 @@ Usage:
     uv run skills/briefing/scripts/daily-briefing.py
     uv run skills/briefing/scripts/daily-briefing.py --dry-run   # print to stdout only
     uv run skills/briefing/scripts/daily-briefing.py --date 2026-02-15
+    uv run skills/briefing/scripts/daily-briefing.py --skip-spi  # skip SPI fork health
 """
 from __future__ import annotations
 
@@ -44,6 +45,12 @@ TIMEZONE = ZoneInfo("America/Chicago")
 # Pipeline status constants
 _RUNNING_STATUSES = frozenset({"running", "pending", "created"})
 
+# SPI fork configuration
+SPI_DEFAULT_ORG = "azure"
+SPI_DEFAULT_SERVICES = ("partition", "entitlements", "legal", "schema", "file", "storage", "indexer", "search")
+SPI_EXTRA_REPOS = ("osdu-spi", "osdu-spi-infra")
+SPI_ALERT_LABELS = frozenset({"human-required", "cascade-blocked"})
+
 
 def _pipeline_label(status: str) -> str:
     """Map a GitLab pipeline status string to a display label."""
@@ -54,6 +61,19 @@ def _pipeline_label(status: str) -> str:
     if status == "canceled":
         return "⊘ Canceled"
     return "❌ Failed"
+
+
+def _spi_workflow_label(conclusion: str) -> str:
+    """Map a GitHub Actions workflow conclusion to a display label."""
+    if conclusion == "success":
+        return "✅"
+    if conclusion == "failure":
+        return "❌"
+    if conclusion in ("cancelled", "skipped"):
+        return "⊘"
+    if conclusion in ("none", "?"):
+        return "⬜"
+    return "❓"
 
 
 def _pipeline_is_actionable_failure(status: str | None) -> bool:
@@ -256,6 +276,230 @@ def get_cimpl_env_status() -> dict:
             status["cluster_status"] = "unknown"
 
     return status
+
+
+def get_spi_fork_status() -> dict:
+    """Collect SPI fork health from GitHub via gh CLI.
+
+    Returns a dict with keys:
+      - org: str
+      - services: dict[str, dict]  (per-service counts)
+      - extra_repos: dict[str, dict]  (osdu-spi + osdu-spi-infra)
+      - error: str | None
+    """
+    org = os.environ.get("SPI_ORG", SPI_DEFAULT_ORG)
+    svc_env = os.environ.get("SPI_SERVICES", "")
+    services = tuple(svc_env.split()) if svc_env else SPI_DEFAULT_SERVICES
+
+    result: dict = {"org": org, "services": {}, "extra_repos": {}, "error": None}
+
+    # Pre-flight: check gh auth
+    auth = run_cmd(["gh", "auth", "status"], timeout=10)
+    if auth is None:
+        result["error"] = "gh not available or not authenticated"
+        return result
+
+    # Collect per-service data
+    for svc in services:
+        repo = f"{org}/osdu-spi-{svc}"
+        svc_data: dict = {
+            "issues_open": 0,
+            "prs_open": 0,
+            "sync_prs": 0,
+            "template_sync_prs": 0,
+            "workflow_conclusion": "?",
+            "human_required": 0,
+            "cascade_blocked": 0,
+        }
+
+        # Issues (open) — extract alert label counts client-side
+        issues = run_json(
+            ["gh", "issue", "list", "--repo", repo, "--state", "open",
+             "--json", "number,title,labels", "--limit", "100"],
+            timeout=15,
+        )
+        if issues is not None:
+            svc_data["issues_open"] = len(issues)
+            for issue in issues:
+                labels = {l["name"] for l in issue.get("labels", [])}
+                if "human-required" in labels:
+                    svc_data["human_required"] += 1
+                if "cascade-blocked" in labels:
+                    svc_data["cascade_blocked"] += 1
+
+        # PRs (open)
+        prs = run_json(
+            ["gh", "pr", "list", "--repo", repo, "--state", "open",
+             "--json", "number,title,labels,createdAt", "--limit", "50"],
+            timeout=15,
+        )
+        if prs is not None:
+            svc_data["prs_open"] = len(prs)
+            for pr in prs:
+                labels = {l["name"] for l in pr.get("labels", [])}
+                if "upstream-sync" in labels:
+                    svc_data["sync_prs"] += 1
+                if "template-sync" in labels:
+                    svc_data["template_sync_prs"] += 1
+
+        # Latest workflow on main
+        runs = run_json(
+            ["gh", "run", "list", "--repo", repo, "--branch", "main",
+             "--limit", "1", "--json", "conclusion"],
+            timeout=15,
+        )
+        if runs and len(runs) > 0:
+            svc_data["workflow_conclusion"] = runs[0].get("conclusion") or "none"
+
+        result["services"][svc] = svc_data
+
+    # Extra repos (osdu-spi, osdu-spi-infra) — lightweight: issues + PRs only
+    for extra in SPI_EXTRA_REPOS:
+        repo = f"{org}/{extra}"
+        extra_data: dict = {"issues_open": 0, "prs_open": 0}
+
+        issues = run_json(
+            ["gh", "issue", "list", "--repo", repo, "--state", "open",
+             "--json", "number", "--limit", "100"],
+            timeout=15,
+        )
+        if issues is not None:
+            extra_data["issues_open"] = len(issues)
+
+        prs = run_json(
+            ["gh", "pr", "list", "--repo", repo, "--state", "open",
+             "--json", "number", "--limit", "50"],
+            timeout=15,
+        )
+        if prs is not None:
+            extra_data["prs_open"] = len(prs)
+
+        result["extra_repos"][extra] = extra_data
+
+    return result
+
+
+def build_spi_alerts(spi_status: dict) -> list[dict]:
+    """Extract structured alerts from SPI fork status for downstream engines."""
+    alerts: list[dict] = []
+    for svc, data in spi_status.get("services", {}).items():
+        if data.get("human_required", 0) > 0:
+            alerts.append({"service": svc, "type": "human-required",
+                           "count": data["human_required"], "severity": "high"})
+        if data.get("cascade_blocked", 0) > 0:
+            alerts.append({"service": svc, "type": "cascade-blocked",
+                           "count": data["cascade_blocked"], "severity": "high"})
+        if data.get("workflow_conclusion") == "failure":
+            alerts.append({"service": svc, "type": "workflow-failure",
+                           "count": 1, "severity": "medium"})
+        if data.get("sync_prs", 0) > 0:
+            alerts.append({"service": svc, "type": "sync-pr-pending",
+                           "count": data["sync_prs"], "severity": "low"})
+    return alerts
+
+
+def render_spi_section(spi_status: dict) -> str:
+    """Render SPI fork health section."""
+    lines = ["\n## SPI Forks · GitHub\n"]
+
+    if spi_status.get("error"):
+        lines.append("> [!warning] SPI fork health unavailable")
+        lines.append(f"> {spi_status['error']}")
+        lines.append("> Run `gh auth login` to enable SPI fork monitoring.")
+        lines.append("")
+        return "\n".join(lines)
+
+    org = spi_status.get("org", SPI_DEFAULT_ORG)
+    services = spi_status.get("services", {})
+    if not services:
+        lines.append("> [!warning] No SPI fork data collected")
+        lines.append("")
+        return "\n".join(lines)
+
+    # Compute totals and detect alerts
+    total_issues = 0
+    total_prs = 0
+    total_sync = 0
+    alert_services: list[str] = []
+
+    for svc, data in services.items():
+        total_issues += data.get("issues_open", 0)
+        total_prs += data.get("prs_open", 0)
+        total_sync += data.get("sync_prs", 0) + data.get("template_sync_prs", 0)
+        if (data.get("human_required", 0) > 0
+                or data.get("cascade_blocked", 0) > 0
+                or data.get("workflow_conclusion") == "failure"):
+            alert_services.append(svc)
+
+    has_alerts = len(alert_services) > 0
+    header_callout = "info" if has_alerts else "success"
+    header_text = (
+        f"{len(alert_services)} fork{'s' if len(alert_services) != 1 else ''} need attention"
+        if has_alerts
+        else f"All {len(services)} forks healthy — no alerts"
+    )
+
+    lines.append(f"> [!{header_callout}] {header_text}")
+    lines.append("> | Service | Issues | PRs | Sync | Workflow | Alerts |")
+    lines.append("> |---------|--------|-----|------|----------|--------|")
+
+    for svc, data in services.items():
+        wf = _spi_workflow_label(data.get("workflow_conclusion", "?"))
+        sync_count = data.get("sync_prs", 0) + data.get("template_sync_prs", 0)
+        alert_parts = []
+        if data.get("human_required", 0) > 0:
+            alert_parts.append("human-required")
+        if data.get("cascade_blocked", 0) > 0:
+            alert_parts.append("cascade-blocked")
+        if data.get("workflow_conclusion") == "failure":
+            alert_parts.append("build failing")
+        alert_str = ", ".join(alert_parts)
+        lines.append(
+            f"> | {svc} | {data.get('issues_open', 0)} | {data.get('prs_open', 0)} "
+            f"| {sync_count} | {wf} | {alert_str} |"
+        )
+
+    lines.append(f">")
+    lines.append(f"> **Summary:** {total_issues} issues · {total_prs} PRs ({total_sync} sync) across {len(services)} repos")
+
+    # Extra repos summary
+    extras = spi_status.get("extra_repos", {})
+    if extras:
+        extra_parts = []
+        for name, data in extras.items():
+            parts = []
+            if data.get("prs_open", 0) > 0:
+                parts.append(f"{data['prs_open']} PR{'s' if data['prs_open'] != 1 else ''}")
+            if data.get("issues_open", 0) > 0:
+                parts.append(f"{data['issues_open']} issue{'s' if data['issues_open'] != 1 else ''}")
+            if parts:
+                extra_parts.append(f"{name} ({', '.join(parts)})")
+        if extra_parts:
+            lines.append(f"> **Template/Infra:** {' · '.join(extra_parts)}")
+
+    lines.append("")
+
+    # Alert callout (only when alerts exist)
+    if has_alerts:
+        lines.append("> [!danger] SPI Alerts")
+        for svc in alert_services:
+            data = services[svc]
+            if data.get("human_required", 0) > 0:
+                lines.append(
+                    f"> - **{svc}**: {data['human_required']} human-required "
+                    f"issue{'s' if data['human_required'] != 1 else ''} — needs conflict resolution"
+                )
+            if data.get("cascade_blocked", 0) > 0:
+                lines.append(
+                    f"> - **{svc}**: cascade blocked — upstream changes not flowing to main"
+                )
+            if data.get("workflow_conclusion") == "failure":
+                lines.append(
+                    f"> - **{svc}**: main workflow failing — builds may be broken"
+                )
+        lines.append("")
+
+    return "\n".join(lines)
 
 
 def render_cimpl_section(cimpl_status: dict) -> str:
@@ -865,6 +1109,7 @@ def render_recommendations(
     goals: list[dict],
     projects: list[dict],
     now: datetime,
+    spi_alerts: list[dict] | None = None,
 ) -> str:
     """Generate rule-based Top 3 Actions from collected data."""
     actions: list[tuple[int, str]] = []  # (priority_score, text)
@@ -897,6 +1142,25 @@ def render_recommendations(
             f"**Clear blockers** — {names} has blocking issues that need resolution.",
         ))
 
+    # Rule 4: SPI forks needing human attention
+    if spi_alerts:
+        high_alerts = [a for a in spi_alerts if a["severity"] == "high"]
+        if high_alerts:
+            services = ", ".join(sorted(set(a["service"] for a in high_alerts)))
+            actions.append((
+                88,
+                f"**Resolve SPI fork alerts** — {len(high_alerts)} high-severity alert(s) "
+                f"across {services}. Cascade-blocked or human-required issues stop the fork pipeline.",
+            ))
+        failing_wf = [a for a in spi_alerts if a["type"] == "workflow-failure"]
+        if failing_wf:
+            services = ", ".join(a["service"] for a in failing_wf)
+            actions.append((
+                75,
+                f"**Fix SPI build failures** — main branch workflow failing on {services}. "
+                f"Use `@spi` agent to investigate.",
+            ))
+
     if not actions:
         return ""
 
@@ -915,6 +1179,7 @@ def render_risks(
     total_open_mrs: int,
     total_failed_mrs: int,
     now: datetime,
+    spi_alerts: list[dict] | None = None,
 ) -> str:
     """Detect and surface risks from collected data."""
     risks: list[str] = []
@@ -943,6 +1208,22 @@ def render_risks(
         for p in blocked:
             risks.append(
                 f"**{p['name']}** has {len(p['blockers'])} blocker(s): {', '.join(p['blockers'][:3])}"
+            )
+
+    # Risk 4: SPI cascade health
+    if spi_alerts:
+        cascade_blocked = [a for a in spi_alerts if a["type"] == "cascade-blocked"]
+        if cascade_blocked:
+            services = ", ".join(a["service"] for a in cascade_blocked)
+            risks.append(
+                f"SPI cascade blocked on {services} — upstream changes are not flowing to main. "
+                f"Prolonged blockage increases merge conflict risk when eventually resolved."
+            )
+        human = [a for a in spi_alerts if a["type"] == "human-required"]
+        if len(human) >= 3:
+            risks.append(
+                f"{len(human)} SPI forks need manual intervention — systemic issue may be blocking "
+                f"the automated sync pipeline across multiple services."
             )
 
     if not risks:
@@ -982,6 +1263,7 @@ def scan_brain_context(
     goals: list[dict],
     projects: list[dict],
     now: datetime,
+    spi_services: list[str] | None = None,
 ) -> str:
     """Scan brain knowledge to surface relevant context for today's briefing.
 
@@ -1024,6 +1306,13 @@ def scan_brain_context(
                     active_projects.add(part)
 
     all_keywords = active_services | active_projects
+
+    # Inject SPI keywords for brain context relevance matching
+    if spi_services:
+        for svc in spi_services:
+            all_keywords.add(svc)
+            all_keywords.add(f"spi-{svc}")
+        all_keywords.update({"spi", "fork", "cascade", "upstream-sync"})
 
     def _relevance_score(text: str, path_str: str) -> int:
         """Score how relevant a note is to today's active work."""
@@ -1120,6 +1409,7 @@ def render_delegation(
     goals: list[dict],
     projects: list[dict],
     now: datetime,
+    spi_alerts: list[dict] | None = None,
 ) -> str:
     """Generate delegation recommendations routed to real agents."""
     items: list[tuple[int, str]] = []
@@ -1154,6 +1444,25 @@ def render_delegation(
                 f"**Manual** → Next task on {proj['name']}: {pending[0]['text']}",
             ))
 
+    # Rule 4: SPI fork alerts → @spi agent
+    if spi_alerts:
+        for alert in spi_alerts:
+            if alert["type"] == "workflow-failure":
+                items.append((
+                    85,
+                    f"**@spi agent** → Investigate failing main workflow on osdu-spi-{alert['service']}",
+                ))
+            elif alert["type"] == "human-required":
+                items.append((
+                    80,
+                    f"**@spi agent** → Resolve human-required issue on osdu-spi-{alert['service']} (conflict resolution)",
+                ))
+            elif alert["type"] == "cascade-blocked":
+                items.append((
+                    75,
+                    f"**@spi agent** → Unblock cascade on osdu-spi-{alert['service']}",
+                ))
+
     lines = ["\n## Delegation\n"]
     lines.append("> [!tip] What I'd Have the Agents Work On")
     if items:
@@ -1173,14 +1482,15 @@ def render_footer(
     total_open_mrs: int,
     total_failed_mrs: int,
     now: datetime,
+    spi_alerts: list[dict] | None = None,
 ) -> str:
     """Render all synthesis sections."""
     output = ""
     output += "\n---"
-    output += render_recommendations(my_mrs, goals, projects, now)
-    output += render_risks(goals, projects, total_open_mrs, total_failed_mrs, now)
+    output += render_recommendations(my_mrs, goals, projects, now, spi_alerts=spi_alerts)
+    output += render_risks(goals, projects, total_open_mrs, total_failed_mrs, now, spi_alerts=spi_alerts)
     output += "\n---\n"
-    output += render_delegation(my_mrs, goals, projects, now)
+    output += render_delegation(my_mrs, goals, projects, now, spi_alerts=spi_alerts)
     return output
 
 
@@ -1193,6 +1503,7 @@ def main() -> None:
     parser = argparse.ArgumentParser(description="Generate daily briefing note")
     parser.add_argument("--dry-run", action="store_true", help="Print to stdout, don't write file")
     parser.add_argument("--date", help="Override date (YYYY-MM-DD)")
+    parser.add_argument("--skip-spi", action="store_true", help="Skip SPI fork health (faster)")
     args = parser.parse_args()
 
     root = workspace_root()
@@ -1228,6 +1539,15 @@ def main() -> None:
     # ── CIMPL environment ──
     print("  ↳ Azure: CIMPL environment...", file=sys.stderr)
     cimpl_status = get_cimpl_env_status()
+
+    # ── SPI fork health ──
+    spi_status: dict | None = None
+    spi_alerts: list[dict] = []
+    if not args.skip_spi:
+        print("  ↳ GitHub: SPI fork health...", file=sys.stderr)
+        spi_status = get_spi_fork_status()
+        if spi_status and not spi_status.get("error"):
+            spi_alerts = build_spi_alerts(spi_status)
 
     # ── Parse MR data ──
     my_mrs_parsed: list[dict] = []
@@ -1271,13 +1591,19 @@ def main() -> None:
     output += render_projects(projects, gh_tasks)
     output += "\n---"
     output += render_cimpl_section(cimpl_status)
+    if spi_status is not None:
+        output += render_spi_section(spi_status)
     output += "\n---"
     output += render_gitlab_section(my_mrs_data, all_mrs_data, now, mr_goal_tags, gitlab_user=GITLAB_USER)
     output += render_notes(my_mrs_parsed)
-    output += scan_brain_context(my_mrs_parsed, goals, projects, now)
+    output += scan_brain_context(
+        my_mrs_parsed, goals, projects, now,
+        spi_services=list(SPI_DEFAULT_SERVICES) if spi_status else None,
+    )
     output += render_footer(
         my_mrs_parsed, goals, projects,
         total_open_mrs, total_failed_mrs, now,
+        spi_alerts=spi_alerts,
     )
 
     # ── Session Digests placeholder ──
