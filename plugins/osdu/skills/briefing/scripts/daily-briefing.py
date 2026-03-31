@@ -46,9 +46,9 @@ TIMEZONE = ZoneInfo("America/Chicago")
 _RUNNING_STATUSES = frozenset({"running", "pending", "created"})
 
 # SPI fork configuration
-SPI_DEFAULT_ORG = "azure"
+SPI_DEFAULT_ORG = "danielscholl-osdu"
 SPI_DEFAULT_SERVICES = ("partition", "entitlements", "legal", "schema", "file", "storage", "indexer", "search")
-SPI_EXTRA_REPOS = ("osdu-spi", "osdu-spi-infra")
+SPI_EXTRA_REPOS = ("osdu-spi-infra",)
 SPI_ALERT_LABELS = frozenset({"human-required", "cascade-blocked"})
 
 
@@ -94,13 +94,16 @@ def brain_path() -> Path:
 def _load_env() -> dict[str, str]:
     """Load key=value pairs from .github/.env relative to workspace root."""
     env: dict[str, str] = {}
-    env_path = workspace_root() / ".github" / ".env"
-    if env_path.exists():
-        for line in env_path.read_text().splitlines():
-            line = line.strip()
-            if line and not line.startswith("#") and "=" in line:
-                key, _, value = line.partition("=")
-                env[key.strip()] = value.strip()
+    # Try workspace root first, then brain vault
+    for base in (workspace_root(), brain_path()):
+        env_path = base / ".github" / ".env"
+        if env_path.exists():
+            for line in env_path.read_text().splitlines():
+                line = line.strip()
+                if line and not line.startswith("#") and "=" in line:
+                    key, _, value = line.partition("=")
+                    env.setdefault(key.strip(), value.strip())
+            break
     return env
 
 
@@ -127,11 +130,14 @@ QUOTES = [
 
 
 def workspace_root() -> Path:
+    """Return the git toplevel if inside a repo, otherwise the current directory."""
     result = subprocess.run(
         ["git", "rev-parse", "--show-toplevel"],
-        capture_output=True, text=True, check=True,
+        capture_output=True, text=True,
     )
-    return Path(result.stdout.strip())
+    if result.returncode == 0 and result.stdout.strip():
+        return Path(result.stdout.strip())
+    return Path.cwd()
 
 
 def utc_to_local_date(iso_str: str) -> str:
@@ -301,7 +307,7 @@ def get_spi_fork_status() -> dict:
 
     # Collect per-service data
     for svc in services:
-        repo = f"{org}/osdu-spi-{svc}"
+        repo = f"{org}/{svc}"
         svc_data: dict = {
             "issues_open": 0,
             "prs_open": 0,
@@ -746,9 +752,12 @@ def link_goals_projects(goals: list[dict], projects: list[dict]) -> None:
 
 
 def get_github_tasks() -> list[dict]:
-    """Fetch open GitHub issues assigned to the current user."""
+    """Fetch open GitHub issues assigned to the current user.
+
+    Uses ``gh search issues`` which does not require a local git repo context.
+    """
     raw = run_cmd(
-        ["gh", "issue", "list", "--assignee", "@me", "--state", "open",
+        ["gh", "search", "issues", "--assignee=@me", "--state=open",
          "--json", "number,title,labels,updatedAt", "--limit", "20"],
         timeout=30,
     )
@@ -757,7 +766,8 @@ def get_github_tasks() -> list[dict]:
     try:
         issues = json.loads(raw)
         return [{"number": i["number"], "title": i["title"],
-                 "labels": [l["name"] for l in i.get("labels", [])],
+                 "labels": [l.get("name", l) if isinstance(l, dict) else str(l)
+                            for l in i.get("labels", [])],
                  "updated": i.get("updatedAt", "")}
                 for i in issues]
     except (json.JSONDecodeError, KeyError):
