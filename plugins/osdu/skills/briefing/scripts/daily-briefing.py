@@ -41,6 +41,27 @@ from zoneinfo import ZoneInfo
 
 TIMEZONE = ZoneInfo("America/Chicago")
 
+# Pipeline status constants
+_RUNNING_STATUSES = frozenset({"running", "pending", "created"})
+
+
+def _pipeline_label(status: str) -> str:
+    """Map a GitLab pipeline status string to a display label."""
+    if status == "success":
+        return "✅ Passing"
+    if status in _RUNNING_STATUSES:
+        return "🔄 Running"
+    if status == "canceled":
+        return "⊘ Canceled"
+    return "❌ Failed"
+
+
+def _pipeline_is_actionable_failure(status: str | None) -> bool:
+    """Return True only for statuses that represent a real failure (not running/pending)."""
+    if status is None or status in _RUNNING_STATUSES or status == "success":
+        return False
+    return True
+
 
 def brain_path() -> Path:
     """Resolve the brain vault path from $OSDU_BRAIN or default ~/.osdu-brain."""
@@ -662,7 +683,7 @@ def render_gitlab_section(
         for mr in my_mrs:
             created = datetime.strptime(mr["created"], "%Y-%m-%d")
             age = (now.replace(tzinfo=None) - created).days
-            pip = "✅ Passing" if mr["pipeline"] == "success" else "❌ Failed"
+            pip = _pipeline_label(mr["pipeline"])
             goal_tag = ""
             if mr_goal_tags and mr["iid"] in mr_goal_tags:
                 goal_tag = " 🎯 " + ", ".join(mr_goal_tags[mr["iid"]])
@@ -725,7 +746,7 @@ def render_gitlab_section(
         lines.append("> | MR | Service | Author | Pipeline | Created |")
         lines.append("> |----|---------|--------|----------|---------|")
         for mr in recent[:10]:
-            pip = "✅ Passing" if mr["pipeline"] == "success" else "❌ Failed"
+            pip = _pipeline_label(mr["pipeline"])
             lines.append(f"> | [!{mr['iid']}]({mr['url']}) | {mr['service']} | @{mr['author']} | {pip} | {mr['created']} |")
     else:
         lines.append("> No recent MRs from other contributors.")
@@ -850,7 +871,7 @@ def render_recommendations(
 
     # Rule 1: Failing MRs — push the closest to green
     if my_mrs:
-        failing = [m for m in my_mrs if m.get("pipeline") != "success"]
+        failing = [m for m in my_mrs if _pipeline_is_actionable_failure(m.get("pipeline"))]
         if failing:
             actions.append((
                 80,
@@ -1104,7 +1125,7 @@ def render_delegation(
     items: list[tuple[int, str]] = []
 
     # Rule 1: Failing personal MRs → OSDU agent investigates pipeline
-    failing_mrs = [m for m in my_mrs if m.get("pipeline") != "success"]
+    failing_mrs = [m for m in my_mrs if _pipeline_is_actionable_failure(m.get("pipeline"))]
     for mr in failing_mrs:
         try:
             created = datetime.strptime(mr["created"], "%Y-%m-%d")
