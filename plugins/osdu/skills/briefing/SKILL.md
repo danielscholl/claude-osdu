@@ -88,7 +88,7 @@ This is what separates a mechanical status dump from an insightful briefing. Aft
 
 ### Step 1: Gather brain context
 
-If **QMD is available** (`which qmd`), use it for fast, targeted searches:
+If **QMD is available and its model is already downloaded** (`which qmd && test -d ~/.cache/qmd/models && ls ~/.cache/qmd/models/*.gguf 2>/dev/null | head -1`), use it for fast, targeted searches:
 ```bash
 # Search for content related to today's MRs, goals, or projects
 qmd query "pipeline failures partition service"
@@ -96,7 +96,7 @@ qmd query "venus milestone planning"
 qmd query "dependency remediation CVE"
 ```
 
-If **QMD is not available**, scan the vault directly:
+If **QMD is not available or model not yet downloaded**, skip qmd and scan the vault directly:
 ```bash
 # Recent reports (last 30 days)
 find ${OSDU_BRAIN:-~/.osdu-brain}/04-reports -name "*.md" -mtime -30
