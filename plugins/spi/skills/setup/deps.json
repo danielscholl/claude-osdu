@@ -1,0 +1,112 @@
+{
+  "tiers": {
+    "core": "Required by plugin scripts and test framework",
+    "infrastructure": "Required by iac skill",
+    "platform": "Required by iac and forks skills (GitHub + Azure)"
+  },
+  "tools": {
+    "git": {
+      "check": "git --version",
+      "tier": "core",
+      "required_by": ["iac", "forks"],
+      "install": {
+        "darwin": "xcode-select --install",
+        "linux": "apt install -y git"
+      }
+    },
+    "python3": {
+      "check": "python3 --version || python --version",
+      "tier": "core",
+      "required_by": [],
+      "install": {
+        "darwin": "brew install python@3.11",
+        "linux": "apt install -y python3",
+        "*": "winget install Python.Python.3.11"
+      }
+    },
+    "uv": {
+      "check": "uv --version",
+      "tier": "core",
+      "required_by": [],
+      "install": {
+        "*": "curl -LsSf https://astral.sh/uv/install.sh | sh"
+      }
+    },
+    "terraform": {
+      "check": "terraform --version",
+      "tier": "infrastructure",
+      "required_by": ["iac"],
+      "install": {
+        "darwin": "brew install terraform",
+        "linux": "brew install terraform"
+      }
+    },
+    "helm": {
+      "check": "helm version --short",
+      "tier": "infrastructure",
+      "required_by": ["iac"],
+      "install": {
+        "darwin": "brew install helm",
+        "linux": "brew install helm"
+      }
+    },
+    "kubectl": {
+      "check": "kubectl version --client",
+      "tier": "infrastructure",
+      "required_by": ["iac"],
+      "install": {
+        "darwin": "brew install kubectl",
+        "linux": "brew install kubectl"
+      }
+    },
+    "kustomize": {
+      "check": "kustomize version",
+      "tier": "infrastructure",
+      "required_by": ["iac"],
+      "install": {
+        "darwin": "brew install kustomize",
+        "linux": "brew install kustomize"
+      }
+    },
+    "az": {
+      "check": "az version",
+      "tier": "platform",
+      "required_by": ["iac"],
+      "install": {
+        "darwin": "brew install azure-cli",
+        "linux": "curl -sL https://aka.ms/InstallAzureCLIDeb | sudo bash",
+        "*": "winget install Microsoft.AzureCLI"
+      }
+    },
+    "azd": {
+      "check": "azd version",
+      "tier": "platform",
+      "required_by": ["iac"],
+      "install": {
+        "darwin": "brew install azure/azd/azd",
+        "linux": "curl -fsSL https://aka.ms/install-azd.sh | bash",
+        "*": "winget install microsoft.azd"
+      }
+    },
+    "gh": {
+      "check": "gh --version",
+      "tier": "platform",
+      "required_by": ["forks"],
+      "install": {
+        "darwin": "brew install gh",
+        "linux": "brew install gh",
+        "*": "winget install GitHub.cli"
+      }
+    },
+    "pwsh": {
+      "check": "pwsh --version",
+      "tier": "platform",
+      "required_by": ["iac"],
+      "install": {
+        "darwin": "brew install powershell/tap/powershell",
+        "linux": "apt install -y powershell",
+        "*": "winget install Microsoft.PowerShell"
+      }
+    }
+  }
+}

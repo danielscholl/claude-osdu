@@ -1,0 +1,77 @@
+{
+  "name": "iac-workflow",
+  "description": "Test SPI iac skill — Azure PaaS patterns, multi-partition, debugging methodology",
+  "ready_pattern": "❯|\\$|>|claude",
+  "steps": [
+    {
+      "name": "azure-paas-knowledge",
+      "prompt": "what Azure PaaS resources does the SPI infrastructure provision for each data partition?",
+      "timeout": 180,
+      "pause_after": 3,
+      "assertions": [
+        {
+          "pattern": "CosmosDB|Service Bus|Storage|cosmosdb|servicebus",
+          "type": "regex",
+          "description": "References Azure PaaS resources"
+        }
+      ]
+    },
+    {
+      "name": "multi-partition-pattern",
+      "prompt": "how do I add a new data partition to the SPI infrastructure?",
+      "timeout": 180,
+      "pause_after": 3,
+      "assertions": [
+        {
+          "pattern": "data_partitions|for_each|partition|TF_VAR",
+          "type": "regex",
+          "description": "Knows multi-partition configuration"
+        }
+      ]
+    },
+    {
+      "name": "feature-flags",
+      "prompt": "how do I disable the reference services in the SPI stack?",
+      "timeout": 180,
+      "pause_after": 3,
+      "assertions": [
+        {
+          "pattern": "enable_osdu_reference_services|enable_unit|enable_crs|feature.*flag",
+          "type": "regex",
+          "description": "Knows feature flag system"
+        }
+      ]
+    },
+    {
+      "name": "debug-methodology",
+      "prompt": "my azd up failed on the SPI infra with a CosmosDB provisioning error, what should I do?",
+      "timeout": 180,
+      "pause_after": 3,
+      "assertions": [
+        {
+          "pattern": "evidence|investigate|state|provisioning|az cosmosdb",
+          "type": "regex",
+          "description": "Suggests systematic investigation"
+        },
+        {
+          "pattern": "just delete|just remove|quick fix",
+          "type": "not_contains",
+          "description": "Does NOT suggest destructive quick fixes"
+        }
+      ]
+    },
+    {
+      "name": "boundary-test-forks",
+      "prompt": "sync the upstream for osdu-spi-partition",
+      "timeout": 180,
+      "pause_after": 3,
+      "assertions": [
+        {
+          "pattern": "fork|sync|upstream|three.branch|gh workflow",
+          "type": "regex",
+          "description": "Routes to fork domain (not iac)"
+        }
+      ]
+    }
+  ]
+}

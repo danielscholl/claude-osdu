@@ -1,0 +1,82 @@
+{
+  "skill_name": "status",
+  "evals": [
+    {
+      "query": "give me a dashboard of all my SPI fork repos",
+      "should_trigger": true
+    },
+    {
+      "query": "what's open across all the SPI fork repos?",
+      "should_trigger": true
+    },
+    {
+      "query": "are there any blocked cascades across the SPI forks?",
+      "should_trigger": true
+    },
+    {
+      "query": "check for human-required issues across all osdu-spi repos",
+      "should_trigger": true
+    },
+    {
+      "query": "what sync PRs are pending review in my fork repos?",
+      "should_trigger": true
+    },
+    {
+      "query": "show me the workflow status for all SPI service forks",
+      "should_trigger": true
+    },
+    {
+      "query": "fork health overview — any issues I should know about?",
+      "should_trigger": true
+    },
+    {
+      "query": "how many open PRs and issues do I have across osdu-spi-partition, entitlements, legal, and the rest?",
+      "should_trigger": true
+    },
+    {
+      "query": "sync the upstream for osdu-spi-partition",
+      "should_trigger": false,
+      "note": "Fork lifecycle operation → forks skill"
+    },
+    {
+      "query": "initialize a new fork for the storage service",
+      "should_trigger": false,
+      "note": "Fork creation → forks skill"
+    },
+    {
+      "query": "how is my SPI AKS cluster doing? are all pods healthy?",
+      "should_trigger": false,
+      "note": "Infrastructure health → health skill"
+    },
+    {
+      "query": "deploy the SPI environment with azd up",
+      "should_trigger": false,
+      "note": "Infrastructure deployment → iac skill"
+    },
+    {
+      "query": "what merge requests are open across OSDU GitLab services?",
+      "should_trigger": false,
+      "note": "GitLab MRs → osdu:osdu-activity (different platform)"
+    },
+    {
+      "query": "check the health of my CIMPL environment",
+      "should_trigger": false,
+      "note": "CIMPL → cimpl:health"
+    },
+    {
+      "query": "check the template-sync status — has the osdu-spi template been updated on the partition fork?",
+      "should_trigger": false,
+      "note": "Specific template-sync check on one repo → forks skill (status is cross-repo aggregation)"
+    },
+    {
+      "query": "resolve the merge conflict in fork_integration for osdu-spi-storage",
+      "should_trigger": false,
+      "note": "Conflict resolution is a fork lifecycle action → forks skill"
+    },
+    {
+      "query": "what's the CosmosDB provisioning state in my SPI environment?",
+      "should_trigger": false,
+      "note": "Azure PaaS resource health → health skill (not GitHub repo status)"
+    }
+  ]
+}

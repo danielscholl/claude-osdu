@@ -1,0 +1,59 @@
+{
+  "name": "setup-workflow",
+  "description": "Test SPI setup skill — tool detection, installation guidance, SPI-specific deps",
+  "ready_pattern": "❯|\\$|>|claude",
+  "steps": [
+    {
+      "name": "tool-check",
+      "prompt": "check what SPI tools I have installed",
+      "timeout": 180,
+      "pause_after": 3,
+      "assertions": [
+        {
+          "pattern": "terraform|helm|kubectl|az|azd|gh|pwsh",
+          "type": "regex",
+          "description": "Checks for SPI-specific CLI tools"
+        }
+      ]
+    },
+    {
+      "name": "missing-tool-guidance",
+      "prompt": "gh command not found — I need it for the SPI fork repos",
+      "timeout": 180,
+      "pause_after": 3,
+      "assertions": [
+        {
+          "pattern": "brew install gh|winget.*GitHub|install.*gh",
+          "type": "regex",
+          "description": "Provides gh installation instructions"
+        }
+      ]
+    },
+    {
+      "name": "pwsh-requirement",
+      "prompt": "why do I need PowerShell for SPI?",
+      "timeout": 180,
+      "pause_after": 3,
+      "assertions": [
+        {
+          "pattern": "lifecycle.*hook|script|azd|ps1|PowerShell",
+          "type": "regex",
+          "description": "Explains PowerShell requirement for azd hooks"
+        }
+      ]
+    },
+    {
+      "name": "boundary-test-forks",
+      "prompt": "check the sync status for all SPI fork repos",
+      "timeout": 180,
+      "pause_after": 3,
+      "assertions": [
+        {
+          "pattern": "gh pr list|upstream-sync|fork|sync",
+          "type": "regex",
+          "description": "Routes to forks domain (not setup)"
+        }
+      ]
+    }
+  ]
+}

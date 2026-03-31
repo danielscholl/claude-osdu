@@ -1,0 +1,59 @@
+{
+  "name": "health-workflow",
+  "description": "Test SPI health skill — environment enumeration, Azure PaaS checks, workload health",
+  "ready_pattern": "❯|\\$|>|claude",
+  "steps": [
+    {
+      "name": "environment-enumeration",
+      "prompt": "what SPI environments do I have deployed?",
+      "timeout": 180,
+      "pause_after": 3,
+      "assertions": [
+        {
+          "pattern": "azd|azure|env|environment|cluster",
+          "type": "regex",
+          "description": "Attempts to enumerate deployed environments"
+        }
+      ]
+    },
+    {
+      "name": "azure-paas-health",
+      "prompt": "is CosmosDB healthy in my SPI deployment? check the Service Bus too",
+      "timeout": 180,
+      "pause_after": 3,
+      "assertions": [
+        {
+          "pattern": "az cosmosdb|az servicebus|provisioningState|status",
+          "type": "regex",
+          "description": "Checks Azure PaaS resources via az CLI"
+        }
+      ]
+    },
+    {
+      "name": "cluster-health",
+      "prompt": "are there any failing pods in my SPI cluster?",
+      "timeout": 180,
+      "pause_after": 3,
+      "assertions": [
+        {
+          "pattern": "kubectl|pods|Running|CrashLoop|Pending",
+          "type": "regex",
+          "description": "Checks pod health via kubectl"
+        }
+      ]
+    },
+    {
+      "name": "boundary-test-iac",
+      "prompt": "add a new CosmosDB container to the SPI infra terraform",
+      "timeout": 180,
+      "pause_after": 3,
+      "assertions": [
+        {
+          "pattern": "terraform|locals|container|for_each|iac",
+          "type": "regex",
+          "description": "Routes to infrastructure domain (not health)"
+        }
+      ]
+    }
+  ]
+}
