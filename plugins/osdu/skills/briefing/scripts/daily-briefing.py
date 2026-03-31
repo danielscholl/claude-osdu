@@ -197,6 +197,28 @@ def get_gitlab_mrs(user: str | None = None) -> dict | None:
     return run_json(cmd, timeout=180)
 
 
+def _find_cimpl_dir() -> Path | None:
+    """Locate the cimpl-azure-provisioning repo directory containing azure.yaml."""
+    # Explicit env var takes priority
+    env = os.environ.get("CIMPL_DIR")
+    if env:
+        p = Path(env).expanduser().resolve()
+        if (p / "azure.yaml").exists():
+            return p
+    # Search known workspace layouts (bare-clone worktree and standard clone)
+    home = Path.home()
+    candidates = [
+        home / "source" / "cimpl-azure-provisioning" / "main",
+        home / "source" / "cimpl-azure-provisioning",
+        home / "source" / "osdu-workspace" / "cimpl-azure-provisioning" / "main",
+        home / "source" / "osdu-workspace" / "cimpl-azure-provisioning",
+    ]
+    for c in candidates:
+        if (c / "azure.yaml").exists():
+            return c
+    return None
+
+
 def get_cimpl_env_status() -> dict:
     """Detect CIMPL Azure environment status via azd and az CLI.
 
@@ -219,10 +241,17 @@ def get_cimpl_env_status() -> dict:
         "error": None,
     }
 
+    # azd requires a directory with azure.yaml — find the cimpl repo
+    cimpl_dir = _find_cimpl_dir()
+    azd_cwd: list[str] = ["-C", str(cimpl_dir)] if cimpl_dir else []
+
     # Check azd env list
-    env_list_raw = run_cmd(["azd", "env", "list", "--output", "json"], timeout=30)
+    env_list_raw = run_cmd(["azd", "env", "list", *azd_cwd, "--output", "json"], timeout=30)
     if env_list_raw is None:
-        status["error"] = "azd not available or not authenticated"
+        if not cimpl_dir:
+            status["error"] = "cimpl-azure-provisioning repo not found (set $CIMPL_DIR or clone it)"
+        else:
+            status["error"] = "azd not available or not authenticated"
         return status
 
     try:
@@ -250,8 +279,8 @@ def get_cimpl_env_status() -> dict:
         return status
 
     # Get environment values
-    rg = run_cmd(["azd", "env", "get-value", "AZURE_RESOURCE_GROUP", "--environment", status["env_name"]], timeout=15)
-    cluster = run_cmd(["azd", "env", "get-value", "AZURE_AKS_CLUSTER_NAME", "--environment", status["env_name"]], timeout=15)
+    rg = run_cmd(["azd", "env", "get-value", *azd_cwd, "AZURE_RESOURCE_GROUP", "--environment", status["env_name"]], timeout=15)
+    cluster = run_cmd(["azd", "env", "get-value", *azd_cwd, "AZURE_AKS_CLUSTER_NAME", "--environment", status["env_name"]], timeout=15)
 
     status["resource_group"] = rg
     status["cluster_name"] = cluster
@@ -515,7 +544,10 @@ def render_cimpl_section(cimpl_status: dict) -> str:
     if cimpl_status.get("error"):
         lines.append(f"> [!warning] ⚠️ Environment detection unavailable")
         lines.append(f"> {cimpl_status['error']}")
-        lines.append(f"> Run `azd auth login` and `az login` to enable environment health checks.")
+        if "not found" in cimpl_status["error"]:
+            lines.append("> Clone the repo or set `$CIMPL_DIR` to enable environment health checks.")
+        else:
+            lines.append("> Run `azd auth login` and `az login` to enable environment health checks.")
         lines.append("")
         return "\n".join(lines)
 

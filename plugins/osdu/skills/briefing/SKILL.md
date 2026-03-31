@@ -115,7 +115,7 @@ For each active area in today's briefing, look for relevant brain context:
 | Failing MR on service X | Past RCAs for that service (`04-reports/rca/`), known issues |
 | SPI fork alerts | Fork management RCAs, cascade history, upstream sync patterns |
 | Goal at 0% progress | Related project notes, blockers, strategy docs |
-| CIMPL environment status | Deployment history, architecture decisions, audit findings |
+| CIMPL environment status | **Only use `azd env list` output** — do not pull environment names or status from brain vault notes |
 | Dependency MRs | Dependency reports, CVE coordination plans |
 | Venus-related activity | Venus strategy, milestone planning, gap analysis |
 | Recent MRs from others | Any organizational context the brain surfaces (initiatives, strategy) |
@@ -125,13 +125,14 @@ For each active area in today's briefing, look for relevant brain context:
 The value is in **connecting dots the user might miss**. Examples of good synthesis:
 
 - "Your MR !849 on search-service is failing — the brain has an RCA from Feb 23 (`rca-master-search-azure-test`) that documented a similar test environment issue. That root cause may still apply."
-- "The cimpl-parity goal is at 0%, but the cimpl-audit findings in `03-knowledge/cimpl-audit/` identified 4 specific gaps. Starting with the findings in `04-findings-recommendations` could give you a concrete path forward."
+- "The cimpl-parity goal is at 0% — check `azd env list` for current deployments. The goal tracks parity between your cimpl-azure-provisioning and upstream CIMPL, not upstream environment internals."
 - "Venus M27 planning expects a 'defensible go/no-go scope matrix' — your open MRs on core services directly feed into that milestone's quality evidence chain."
 
 Bad synthesis (avoid):
 - Listing every file in the brain without connecting it to today's work
 - Restating what the script already shows (MR counts, pipeline status)
 - Speculating about things not in the brain or today's data
+- **Conflating upstream CIMPL (ROSA) environments with local cimpl-azure-provisioning** — brain notes about dev1/dev2/temp/qa are upstream OpenGroup environments. Your CIMPL environments come exclusively from `azd env list`. Never reference upstream environment names, URLs, or audit findings as if they describe your own deployment.
 
 ## Presentation Protocol
 
