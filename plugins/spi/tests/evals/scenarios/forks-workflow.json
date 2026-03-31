@@ -1,0 +1,72 @@
+{
+  "name": "forks-workflow",
+  "description": "Test SPI forks skill — three-branch strategy, sync, cascade, conflict resolution",
+  "ready_pattern": "❯|\\$|>|claude",
+  "steps": [
+    {
+      "name": "three-branch-knowledge",
+      "prompt": "explain how the three-branch strategy works for SPI service forks",
+      "timeout": 180,
+      "pause_after": 3,
+      "assertions": [
+        {
+          "pattern": "fork_upstream|fork_integration|main|three.branch",
+          "type": "regex",
+          "description": "Knows three-branch strategy"
+        }
+      ]
+    },
+    {
+      "name": "sync-operations",
+      "prompt": "check the sync status across all 8 SPI fork repos",
+      "timeout": 180,
+      "pause_after": 3,
+      "assertions": [
+        {
+          "pattern": "gh pr list|upstream-sync|partition|entitlements|legal|schema",
+          "type": "regex",
+          "description": "Uses gh CLI to check sync across repos"
+        }
+      ]
+    },
+    {
+      "name": "conflict-resolution",
+      "prompt": "there's a merge conflict in fork_integration for osdu-spi-storage, how do I resolve it?",
+      "timeout": 180,
+      "pause_after": 3,
+      "assertions": [
+        {
+          "pattern": "fork_integration|conflict|resolve|checkout|push",
+          "type": "regex",
+          "description": "Knows conflict resolution process"
+        }
+      ]
+    },
+    {
+      "name": "cascade-workflow",
+      "prompt": "how do I trigger a manual cascade for osdu-spi-partition?",
+      "timeout": 180,
+      "pause_after": 3,
+      "assertions": [
+        {
+          "pattern": "gh workflow run|cascade|cascade.yml",
+          "type": "regex",
+          "description": "Knows cascade trigger mechanism"
+        }
+      ]
+    },
+    {
+      "name": "boundary-test-iac",
+      "prompt": "deploy my SPI environment with azd up",
+      "timeout": 180,
+      "pause_after": 3,
+      "assertions": [
+        {
+          "pattern": "azd|terraform|deploy|infra|provision",
+          "type": "regex",
+          "description": "Routes to infrastructure domain (not forks)"
+        }
+      ]
+    }
+  ]
+}

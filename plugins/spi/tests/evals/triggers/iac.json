@@ -1,0 +1,67 @@
+{
+  "skill_name": "iac",
+  "evals": [
+    {
+      "query": "add a new CosmosDB container for the notification service in osdu-spi-infra",
+      "should_trigger": true
+    },
+    {
+      "query": "terraform plan shows a diff on the Service Bus module in the SPI infra",
+      "should_trigger": true
+    },
+    {
+      "query": "deploy the SPI environment with azd up",
+      "should_trigger": true
+    },
+    {
+      "query": "I need to add a new data partition to the SPI infrastructure",
+      "should_trigger": true
+    },
+    {
+      "query": "the Workload Identity federation is failing for the osdu namespace",
+      "should_trigger": true
+    },
+    {
+      "query": "how do I configure the blue/green stack deployment for SPI?",
+      "should_trigger": true
+    },
+    {
+      "query": "pods are stuck in Pending after SPI deployment and I see safeguard violations",
+      "should_trigger": true
+    },
+    {
+      "query": "how do I disable the reference services using feature flags?",
+      "should_trigger": true
+    },
+    {
+      "query": "sync the upstream fork for osdu-spi-partition",
+      "should_trigger": false,
+      "note": "Fork management → forks skill"
+    },
+    {
+      "query": "what's the cascade status across all fork repos?",
+      "should_trigger": false,
+      "note": "Fork management → forks skill"
+    },
+    {
+      "query": "run the smoke tests on the SPI environment",
+      "should_trigger": false,
+      "note": "QA testing → osdu:osdu-qa"
+    },
+    {
+      "query": "deploy the CIMPL environment with azd up",
+      "should_trigger": false,
+      "note": "CIMPL infrastructure → cimpl:iac"
+    },
+    {
+      "query": "who are the top contributors to OSDU this quarter?",
+      "should_trigger": false,
+      "note": "Platform analytics → osdu:osdu-engagement"
+    },
+    {
+      "query": "build the partition service with maven and run unit tests",
+      "should_trigger": false,
+      "note": "Java builds → osdu:maven"
+    }
+  ]
+}
