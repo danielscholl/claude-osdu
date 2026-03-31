@@ -313,12 +313,36 @@ def get_cimpl_env_status() -> dict:
     return status
 
 
+def _classify_pr(pr: dict) -> str:
+    """Classify a PR into a category based on its labels."""
+    labels = {l["name"] for l in pr.get("labels", [])}
+    if "upstream-sync" in labels:
+        return "sync"
+    if "template-sync" in labels:
+        return "sync"
+    if "dependencies" in labels:
+        return "deps"
+    if any("autorelease" in l for l in labels):
+        return "release"
+    return "other"
+
+
+def _classify_issue(issue: dict) -> str:
+    """Classify an issue based on its labels."""
+    labels = {l["name"] for l in issue.get("labels", [])}
+    if "upstream-sync" in labels:
+        return "sync"
+    if "cascade-blocked" in labels:
+        return "cascade"
+    return "other"
+
+
 def get_spi_fork_status() -> dict:
     """Collect SPI fork health from GitHub via gh CLI.
 
     Returns a dict with keys:
       - org: str
-      - services: dict[str, dict]  (per-service counts)
+      - services: dict[str, dict]  (per-service counts + detailed items)
       - extra_repos: dict[str, dict]  (osdu-spi + osdu-spi-infra)
       - error: str | None
     """
@@ -345,6 +369,9 @@ def get_spi_fork_status() -> dict:
             "workflow_conclusion": "?",
             "human_required": 0,
             "cascade_blocked": 0,
+            # Detailed items for enriched rendering
+            "issue_items": [],
+            "pr_items": [],
         }
 
         # Issues (open) — extract alert label counts client-side
@@ -361,6 +388,13 @@ def get_spi_fork_status() -> dict:
                     svc_data["human_required"] += 1
                 if "cascade-blocked" in labels:
                     svc_data["cascade_blocked"] += 1
+                svc_data["issue_items"].append({
+                    "number": issue["number"],
+                    "title": issue.get("title", ""),
+                    "labels": list(labels),
+                    "category": _classify_issue(issue),
+                    "url": f"https://github.com/{repo}/issues/{issue['number']}",
+                })
 
         # PRs (open)
         prs = run_json(
@@ -376,6 +410,17 @@ def get_spi_fork_status() -> dict:
                     svc_data["sync_prs"] += 1
                 if "template-sync" in labels:
                     svc_data["template_sync_prs"] += 1
+                category = _classify_pr(pr)
+                is_human = "human-required" in labels
+                svc_data["pr_items"].append({
+                    "number": pr["number"],
+                    "title": pr.get("title", ""),
+                    "labels": list(labels),
+                    "category": category,
+                    "human_required": is_human,
+                    "created_at": pr.get("createdAt", ""),
+                    "url": f"https://github.com/{repo}/pull/{pr['number']}",
+                })
 
         # Latest workflow on main
         runs = run_json(
@@ -434,7 +479,7 @@ def build_spi_alerts(spi_status: dict) -> list[dict]:
 
 
 def render_spi_section(spi_status: dict) -> str:
-    """Render SPI fork health section."""
+    """Render SPI fork health section grouped by action category."""
     lines = ["\n## SPI Forks · GitHub\n"]
 
     if spi_status.get("error"):
@@ -451,53 +496,163 @@ def render_spi_section(spi_status: dict) -> str:
         lines.append("")
         return "\n".join(lines)
 
-    # Compute totals and detect alerts
-    total_issues = 0
+    # ── Collect items across all forks by category ──
+    sync_prs: list[dict] = []       # upstream-sync PRs
+    sync_issues: list[dict] = []    # upstream-sync issues
+    release_prs: list[dict] = []    # autorelease PRs
+    dep_prs: list[dict] = []        # dependency PRs
+    other_prs: list[dict] = []      # anything else
+    other_issues: list[dict] = []   # non-sync issues
+    workflow_failures: list[str] = []
+
     total_prs = 0
-    total_sync = 0
-    alert_services: list[str] = []
+    total_issues = 0
 
     for svc, data in services.items():
-        total_issues += data.get("issues_open", 0)
         total_prs += data.get("prs_open", 0)
-        total_sync += data.get("sync_prs", 0) + data.get("template_sync_prs", 0)
-        if (data.get("human_required", 0) > 0
-                or data.get("cascade_blocked", 0) > 0
-                or data.get("workflow_conclusion") == "failure"):
-            alert_services.append(svc)
+        total_issues += data.get("issues_open", 0)
 
-    has_alerts = len(alert_services) > 0
-    header_callout = "info" if has_alerts else "success"
-    header_text = (
-        f"{len(alert_services)} fork{'s' if len(alert_services) != 1 else ''} need attention"
-        if has_alerts
-        else f"All {len(services)} forks healthy — no alerts"
-    )
+        for pr in data.get("pr_items", []):
+            pr["service"] = svc
+            cat = pr["category"]
+            if cat == "sync":
+                sync_prs.append(pr)
+            elif cat == "release":
+                release_prs.append(pr)
+            elif cat == "deps":
+                dep_prs.append(pr)
+            else:
+                other_prs.append(pr)
+
+        for issue in data.get("issue_items", []):
+            issue["service"] = svc
+            if issue["category"] == "sync":
+                sync_issues.append(issue)
+            else:
+                other_issues.append(issue)
+
+        if data.get("workflow_conclusion") == "failure":
+            workflow_failures.append(svc)
+
+    # ── Determine overall health ──
+    has_conflicts = any(pr.get("human_required") for pr in sync_prs)
+    has_cascade = any(i["category"] == "cascade" for i in other_issues)
+    has_wf_fail = len(workflow_failures) > 0
+    needs_attention = has_conflicts or has_cascade or has_wf_fail or len(sync_prs) > 0
+
+    header_callout = "info" if needs_attention else "success"
+    if has_conflicts or has_cascade or has_wf_fail:
+        attention_count = sum([
+            len([p for p in sync_prs if p.get("human_required")]),
+            len(workflow_failures),
+        ])
+        header_text = f"{attention_count} item{'s' if attention_count != 1 else ''} need human action"
+    elif sync_prs:
+        header_text = f"{len(sync_prs)} upstream sync{'s' if len(sync_prs) != 1 else ''} ready for review"
+    else:
+        header_text = f"All {len(services)} forks healthy — no alerts"
 
     lines.append(f"> [!{header_callout}] {header_text}")
-    lines.append("> | Service | Issues | PRs | Sync | Workflow | Alerts |")
-    lines.append("> |---------|--------|-----|------|----------|--------|")
+    lines.append(f"> {total_issues} issues · {total_prs} PRs across {len(services)} repos")
+    lines.append("")
 
-    for svc, data in services.items():
-        wf = _spi_workflow_label(data.get("workflow_conclusion", "?"))
-        sync_count = data.get("sync_prs", 0) + data.get("template_sync_prs", 0)
-        alert_parts = []
-        if data.get("human_required", 0) > 0:
-            alert_parts.append("human-required")
-        if data.get("cascade_blocked", 0) > 0:
-            alert_parts.append("cascade-blocked")
-        if data.get("workflow_conclusion") == "failure":
-            alert_parts.append("build failing")
-        alert_str = ", ".join(alert_parts)
-        lines.append(
-            f"> | {svc} | {data.get('issues_open', 0)} | {data.get('prs_open', 0)} "
-            f"| {sync_count} | {wf} | {alert_str} |"
+    # ── UPSTREAM SYNC section ──
+    if sync_prs or sync_issues:
+        lines.append("> [!warning] Upstream Sync")
+
+        # Show sync issues (tracking issues for the sync)
+        for issue in sync_issues:
+            svc = issue["service"]
+            status = "⚠️ conflicts" if "human-required" in issue["labels"] else "✅ validated"
+            lines.append(
+                f"> - **{svc}** [#{issue['number']}]({issue['url']}) "
+                f"{issue['title'][:60]} — {status}"
+            )
+
+        # Show sync PRs that don't have a corresponding issue already shown
+        sync_issue_services = {i["service"] for i in sync_issues}
+        for pr in sync_prs:
+            svc = pr["service"]
+            status = "⚠️ conflicts — human-required" if pr.get("human_required") else "ready to merge"
+            lines.append(
+                f"> - **{svc}** [#{pr['number']}]({pr['url']}) "
+                f"{pr['title'][:60]} — {status}"
+            )
+
+        lines.append("")
+
+    # ── RELEASES section ──
+    if release_prs:
+        svc_list = ", ".join(
+            f"[{pr['service']} #{pr['number']}]({pr['url']})"
+            for pr in release_prs
         )
+        lines.append(f"> [!tip] Releases — {len(release_prs)} pending")
+        lines.append(f"> {svc_list}")
+        lines.append("")
 
-    lines.append(f">")
-    lines.append(f"> **Summary:** {total_issues} issues · {total_prs} PRs ({total_sync} sync) across {len(services)} repos")
+    # ── DEPENDENCIES section ──
+    if dep_prs:
+        # Group by dependency name to show cross-fork impact
+        dep_groups: dict[str, list[str]] = {}
+        for pr in dep_prs:
+            # Extract the dependency name from the title
+            title = pr["title"]
+            # Normalize: "Bump X from A to B" or "build(deps): bump X from A to B in /dir"
+            dep_name = title
+            for prefix in ("build(deps): bump ", "build(deps-dev): bump ", "Bump "):
+                if title.startswith(prefix):
+                    dep_name = title[len(prefix):]
+                    break
+            # Trim " from X to Y" and " in /dir" suffixes to get the artifact name
+            if " from " in dep_name:
+                dep_name = dep_name[:dep_name.index(" from ")]
+            if " in " in dep_name:
+                dep_name = dep_name[:dep_name.index(" in ")]
+            dep_name = dep_name.strip()
+            dep_groups.setdefault(dep_name, []).append(pr["service"])
 
-    # Extra repos summary
+        # Sort by number of unique affected forks (most impactful first)
+        sorted_deps = sorted(dep_groups.items(), key=lambda x: len(set(x[1])), reverse=True)
+
+        lines.append(f"> [!note] Dependencies — {len(dep_prs)} PRs across {len(set(pr['service'] for pr in dep_prs))} forks")
+        for dep_name, affected in sorted_deps[:6]:  # Show top 6
+            unique_svcs = sorted(set(affected))
+            svc_str = ", ".join(unique_svcs)
+            lines.append(f"> - **{dep_name}** → {svc_str} ({len(unique_svcs)} fork{'s' if len(unique_svcs) != 1 else ''})")
+        remaining = len(sorted_deps) - 6
+        if remaining > 0:
+            lines.append(f"> - *…and {remaining} more*")
+        lines.append("")
+
+    # ── WORKFLOW STATUS section ──
+    if workflow_failures:
+        lines.append("> [!danger] Workflow Failures")
+        for svc in workflow_failures:
+            repo_url = f"https://github.com/{org}/{svc}/actions"
+            lines.append(f"> - **{svc}** — main branch [workflow failing]({repo_url})")
+        lines.append("")
+
+    # ── OTHER PRs/Issues ──
+    if other_prs:
+        lines.append(f"> [!abstract] Other PRs — {len(other_prs)}")
+        for pr in other_prs:
+            lines.append(
+                f"> - **{pr['service']}** [#{pr['number']}]({pr['url']}) {pr['title'][:60]}"
+            )
+        lines.append("")
+
+    if other_issues:
+        non_sync = [i for i in other_issues if i["category"] != "sync"]
+        if non_sync:
+            lines.append(f"> [!abstract] Other Issues — {len(non_sync)}")
+            for issue in non_sync:
+                lines.append(
+                    f"> - **{issue['service']}** [#{issue['number']}]({issue['url']}) {issue['title'][:60]}"
+                )
+            lines.append("")
+
+    # ── Extra repos summary ──
     extras = spi_status.get("extra_repos", {})
     if extras:
         extra_parts = []
@@ -511,28 +666,7 @@ def render_spi_section(spi_status: dict) -> str:
                 extra_parts.append(f"{name} ({', '.join(parts)})")
         if extra_parts:
             lines.append(f"> **Template/Infra:** {' · '.join(extra_parts)}")
-
-    lines.append("")
-
-    # Alert callout (only when alerts exist)
-    if has_alerts:
-        lines.append("> [!danger] SPI Alerts")
-        for svc in alert_services:
-            data = services[svc]
-            if data.get("human_required", 0) > 0:
-                lines.append(
-                    f"> - **{svc}**: {data['human_required']} human-required "
-                    f"issue{'s' if data['human_required'] != 1 else ''} — needs conflict resolution"
-                )
-            if data.get("cascade_blocked", 0) > 0:
-                lines.append(
-                    f"> - **{svc}**: cascade blocked — upstream changes not flowing to main"
-                )
-            if data.get("workflow_conclusion") == "failure":
-                lines.append(
-                    f"> - **{svc}**: main workflow failing — builds may be broken"
-                )
-        lines.append("")
+            lines.append("")
 
     return "\n".join(lines)
 
