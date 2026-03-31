@@ -1,0 +1,52 @@
+{
+  "skill_name": "setup",
+  "evals": [
+    {
+      "query": "setup my tools for SPI development",
+      "should_trigger": true
+    },
+    {
+      "query": "check my dependencies — what do I need installed for SPI?",
+      "should_trigger": true
+    },
+    {
+      "query": "gh command not found when I try to check fork status",
+      "should_trigger": true
+    },
+    {
+      "query": "pwsh is not installed and I need to run azd up for SPI",
+      "should_trigger": true
+    },
+    {
+      "query": "what tools do I need for the SPI plugin?",
+      "should_trigger": true
+    },
+    {
+      "query": "I can't run azd because pwsh is missing on my machine",
+      "should_trigger": true
+    },
+    {
+      "query": "the gh CLI isn't installed, how do I get it for managing SPI forks?",
+      "should_trigger": true
+    },
+    {
+      "query": "how do I install the SPI development dependencies on macOS?",
+      "should_trigger": true
+    },
+    {
+      "query": "deploy the SPI environment with azd up",
+      "should_trigger": false,
+      "note": "Deployment → iac"
+    },
+    {
+      "query": "check the fork status across all repos",
+      "should_trigger": false,
+      "note": "Fork management → forks"
+    },
+    {
+      "query": "how is my SPI cluster doing?",
+      "should_trigger": false,
+      "note": "Environment health → health"
+    }
+  ]
+}

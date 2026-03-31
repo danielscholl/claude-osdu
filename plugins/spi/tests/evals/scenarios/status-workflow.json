@@ -1,0 +1,111 @@
+{
+  "name": "status-workflow",
+  "description": "Test SPI status skill — cross-repo dashboard, focused queries, alert detection, workflow health",
+  "ready_pattern": "❯|\\$|>|claude",
+  "steps": [
+    {
+      "name": "full-dashboard",
+      "prompt": "give me a status dashboard across all my SPI fork repos",
+      "timeout": 180,
+      "pause_after": 3,
+      "assertions": [
+        {
+          "pattern": "gh (issue|pr) list|SPI_ORG|partition|entitlements|legal",
+          "type": "regex",
+          "description": "Queries multiple fork repos for issues and PRs"
+        }
+      ]
+    },
+    {
+      "name": "blocked-cascades",
+      "prompt": "are there any blocked cascades across the SPI forks?",
+      "timeout": 180,
+      "pause_after": 3,
+      "assertions": [
+        {
+          "pattern": "cascade-blocked|human-required|gh issue list",
+          "type": "regex",
+          "description": "Checks for cascade-blocked and human-required labels"
+        }
+      ]
+    },
+    {
+      "name": "sync-prs",
+      "prompt": "what upstream sync PRs need review?",
+      "timeout": 180,
+      "pause_after": 3,
+      "assertions": [
+        {
+          "pattern": "upstream-sync|gh pr list|review",
+          "type": "regex",
+          "description": "Checks for sync PRs with review status"
+        }
+      ]
+    },
+    {
+      "name": "failing-workflows",
+      "prompt": "are any workflows failing on main across the SPI forks?",
+      "timeout": 180,
+      "pause_after": 3,
+      "assertions": [
+        {
+          "pattern": "gh run list|conclusion|fail|main",
+          "type": "regex",
+          "description": "Checks workflow run conclusions on main branch"
+        }
+      ]
+    },
+    {
+      "name": "human-required-issues",
+      "prompt": "check for any human-required issues across all fork repos",
+      "timeout": 180,
+      "pause_after": 3,
+      "assertions": [
+        {
+          "pattern": "human-required|gh issue list|label",
+          "type": "regex",
+          "description": "Searches for human-required labeled issues"
+        }
+      ]
+    },
+    {
+      "name": "branch-divergence",
+      "prompt": "how far has fork_integration drifted from main across repos?",
+      "timeout": 180,
+      "pause_after": 3,
+      "assertions": [
+        {
+          "pattern": "gh api|compare|ahead|behind|fork_integration",
+          "type": "regex",
+          "description": "Checks branch divergence via GitHub compare API"
+        }
+      ]
+    },
+    {
+      "name": "clean-result",
+      "prompt": "is everything clean across the SPI forks? no issues, no blocked cascades?",
+      "timeout": 180,
+      "pause_after": 3,
+      "assertions": [
+        {
+          "pattern": "clean|no.*blocked|no.*human|no.*fail|all.*ok|healthy",
+          "type": "regex",
+          "description": "Provides explicit clean/healthy statement when no alerts"
+        }
+      ]
+    },
+    {
+      "name": "boundary-test-forks",
+      "prompt": "initialize a new fork for the notification service from the template",
+      "timeout": 180,
+      "pause_after": 3,
+      "assertions": [
+        {
+          "pattern": "gh repo create|template|fork|init|clone",
+          "type": "regex",
+          "description": "Routes to fork initialization (not status)"
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,62 @@
+{
+  "skill_name": "health",
+  "evals": [
+    {
+      "query": "report on my SPI environments — what's the cluster status?",
+      "should_trigger": true
+    },
+    {
+      "query": "how is my SPI cluster doing? are all nodes healthy?",
+      "should_trigger": true
+    },
+    {
+      "query": "is CosmosDB healthy in my SPI deployment?",
+      "should_trigger": true
+    },
+    {
+      "query": "check the Service Bus status across all partitions",
+      "should_trigger": true
+    },
+    {
+      "query": "give me an environment health check for the SPI deployment",
+      "should_trigger": true
+    },
+    {
+      "query": "are there any pods crashing in my SPI environment?",
+      "should_trigger": true
+    },
+    {
+      "query": "is everything running after the SPI deployment?",
+      "should_trigger": true
+    },
+    {
+      "query": "what's deployed right now in my SPI cluster?",
+      "should_trigger": true
+    },
+    {
+      "query": "add a readiness probe to pass AKS safeguards in SPI",
+      "should_trigger": false,
+      "note": "Infrastructure changes → iac"
+    },
+    {
+      "query": "sync the upstream fork for osdu-spi-partition",
+      "should_trigger": false,
+      "note": "Fork management → forks"
+    },
+    {
+      "query": "run the smoke tests on the SPI environment",
+      "should_trigger": false,
+      "note": "Test execution → osdu:osdu-qa"
+    },
+    {
+      "query": "terraform plan for the SPI infra layer",
+      "should_trigger": false,
+      "note": "Terraform work → iac"
+    },
+    {
+      "query": "check the health of my CIMPL environment",
+      "should_trigger": false,
+      "note": "CIMPL health → cimpl:health"
+    }
+  ]
+}

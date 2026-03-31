@@ -1,0 +1,62 @@
+{
+  "skill_name": "forks",
+  "evals": [
+    {
+      "query": "sync the upstream for osdu-spi-partition",
+      "should_trigger": true
+    },
+    {
+      "query": "cascade the latest upstream changes to main for the search fork",
+      "should_trigger": true
+    },
+    {
+      "query": "there's a merge conflict in fork_integration for the storage service",
+      "should_trigger": true
+    },
+    {
+      "query": "what's the fork status across all 8 SPI repos?",
+      "should_trigger": true
+    },
+    {
+      "query": "initialize a new fork for the notification service",
+      "should_trigger": true
+    },
+    {
+      "query": "check if any cascades are blocked across the fork repos",
+      "should_trigger": true
+    },
+    {
+      "query": "the template sync PR is open for osdu-spi-entitlements, should I merge it?",
+      "should_trigger": true
+    },
+    {
+      "query": "how does the three-branch strategy work for SPI forks?",
+      "should_trigger": true
+    },
+    {
+      "query": "terraform plan shows a diff on the SPI infra module",
+      "should_trigger": false,
+      "note": "Infrastructure → iac skill"
+    },
+    {
+      "query": "how is my SPI cluster doing? are all nodes healthy?",
+      "should_trigger": false,
+      "note": "Environment health → health skill"
+    },
+    {
+      "query": "what merge requests are open across OSDU GitLab services?",
+      "should_trigger": false,
+      "note": "GitLab MRs → osdu:osdu-activity"
+    },
+    {
+      "query": "deploy the SPI environment with azd up",
+      "should_trigger": false,
+      "note": "Deployment → iac skill"
+    },
+    {
+      "query": "check dependencies for the storage service and find CVEs",
+      "should_trigger": false,
+      "note": "Dependencies → osdu:maven"
+    }
+  ]
+}

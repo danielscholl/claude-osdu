@@ -42,7 +42,8 @@ When in doubt: **reduce, clarify, decide.**
 | Plugin | Domain | Agent |
 |--------|--------|-------|
 | **osdu** | Platform operations — analytics, QA, builds, knowledge, shipping | @osdu |
-| **cimpl** | Infrastructure — Terraform, Helm, AKS, environment provisioning | @cimpl |
+| **cimpl** | CIMPL infrastructure — Terraform, Helm, AKS, all-in-cluster OSDU | @cimpl |
+| **spi** | SPI infrastructure — Azure PaaS hybrid + fork management (GitHub) | @spi |
 
 ## Cross-Plugin Conventions
 

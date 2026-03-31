@@ -1,0 +1,24 @@
+{
+  "name": "spi",
+  "version": "0.2.0",
+  "description": "Azure SPI infrastructure and fork management — Terraform, Helm, AKS with Azure PaaS, and three-branch fork lifecycle for OSDU Service Provider Interface deployments",
+  "author": {
+    "name": "Daniel Scholl",
+    "email": "daniel.scholl@microsoft.com"
+  },
+  "license": "Apache-2.0",
+  "keywords": [
+    "osdu",
+    "azure",
+    "spi",
+    "terraform",
+    "fork-management",
+    "github-actions",
+    "cosmosdb",
+    "service-bus"
+  ],
+  "repository": "https://community.opengroup.org/danielscholl/claude-osdu",
+  "agents": [
+    "./agents/spi.md"
+  ]
+}
