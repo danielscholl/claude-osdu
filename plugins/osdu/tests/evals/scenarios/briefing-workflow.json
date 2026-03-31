@@ -1,0 +1,64 @@
+{
+  "name": "briefing-workflow",
+  "description": "Test briefing skill — script awareness, SPI data sources, skip flag, agent routing, boundary with SPI status",
+  "ready_pattern": "❯|\\$|>|claude",
+  "steps": [
+    {
+      "name": "briefing-script-knowledge",
+      "prompt": "what script generates the daily briefing note and what data sources does it aggregate?",
+      "timeout": 180,
+      "pause_after": 3,
+      "assertions": [
+        {
+          "pattern": "daily-briefing|briefing.*script|uv run",
+          "type": "regex",
+          "description": "Knows about the daily-briefing.py script"
+        },
+        {
+          "pattern": "GitLab|MR|vault|goal",
+          "type": "regex",
+          "description": "Knows key data sources"
+        }
+      ]
+    },
+    {
+      "name": "skip-spi-flag",
+      "prompt": "what flag skips the SPI fork health collection for a faster briefing?",
+      "timeout": 120,
+      "pause_after": 3,
+      "assertions": [
+        {
+          "pattern": "--skip-spi",
+          "type": "regex",
+          "description": "Knows about the --skip-spi flag"
+        }
+      ]
+    },
+    {
+      "name": "spi-delegation",
+      "prompt": "if an SPI fork has a cascade-blocked issue, what agent handles that?",
+      "timeout": 120,
+      "pause_after": 3,
+      "assertions": [
+        {
+          "pattern": "@spi|spi agent|spi plugin",
+          "type": "regex",
+          "description": "Routes SPI fork issues to the @spi agent"
+        }
+      ]
+    },
+    {
+      "name": "briefing-vs-activity",
+      "prompt": "what is the difference between the briefing skill and the osdu-activity skill?",
+      "timeout": 120,
+      "pause_after": 3,
+      "assertions": [
+        {
+          "pattern": "briefing|morning|daily|aggregat",
+          "type": "regex",
+          "description": "Distinguishes briefing as a daily aggregation vs ad-hoc status"
+        }
+      ]
+    }
+  ]
+}
