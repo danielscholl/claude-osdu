@@ -75,7 +75,7 @@ Writes a daily note to `$VAULT/00-inbox/YYYY-MM-DD.md` containing:
 - Goal progress (auto-measured from vault checkboxes)
 - Per-project status with tasks and blockers
 - CIMPL environment health
-- SPI fork health table with alerts (human-required, cascade-blocked, workflow failures)
+- SPI fork health grouped by action category (upstream sync, releases, dependencies, workflows)
 - GitLab MR tables (yours + recent)
 - Rule-based recommendations, risks, and delegation routing
 - Brain context section (agent-populated — see below)
@@ -145,8 +145,18 @@ Good morning. It's [Day], [Date].
    — [Attribution]
 
 SPI FORKS (GitHub)
-  | Service | Issues | PRs | Sync | Workflow | Alerts |
-  [table rows — highlight human-required, cascade-blocked, failing workflows]
+  UPSTREAM SYNC — N forks have pending upstream changes
+    service  #nn  title — ⚠️ conflicts / ✅ validated / ready to merge
+    [clickable links to issues and PRs]
+
+  RELEASES — N pending
+    [clickable links: service #nn, ...]
+
+  DEPENDENCIES — N PRs across M forks
+    dep-name → svc1, svc2 (N forks)
+    [top 6 by cross-fork impact, grouped by dependency artifact]
+
+  WORKFLOWS — status (only shown if failures exist)
 
 OSDU PLATFORM (GitLab upstream)
   YOUR MRs:
