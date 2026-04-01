@@ -1,6 +1,6 @@
 {
   "name": "osdu",
-  "version": "0.1.14",
+  "version": "0.1.15",
   "description": "OSDU platform operations — agents, skills, and live platform access for analytics, QA testing, builds, knowledge management, and shipping across OSDU Community Implementation environments on Azure",
   "author": {
     "name": "Daniel Scholl",

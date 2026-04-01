@@ -396,10 +396,10 @@ def get_spi_fork_status() -> dict:
                     "url": f"https://github.com/{repo}/issues/{issue['number']}",
                 })
 
-        # PRs (open)
+        # PRs (open) — include mergeable state to distinguish conflicts from review gates
         prs = run_json(
             ["gh", "pr", "list", "--repo", repo, "--state", "open",
-             "--json", "number,title,labels,createdAt", "--limit", "50"],
+             "--json", "number,title,labels,createdAt,mergeable", "--limit", "50"],
             timeout=15,
         )
         if prs is not None:
@@ -412,12 +412,16 @@ def get_spi_fork_status() -> dict:
                     svc_data["template_sync_prs"] += 1
                 category = _classify_pr(pr)
                 is_human = "human-required" in labels
+                mergeable = pr.get("mergeable", "UNKNOWN")
+                has_conflicts = mergeable == "CONFLICTING"
                 svc_data["pr_items"].append({
                     "number": pr["number"],
                     "title": pr.get("title", ""),
                     "labels": list(labels),
                     "category": category,
                     "human_required": is_human,
+                    "has_conflicts": has_conflicts,
+                    "mergeable": mergeable,
                     "created_at": pr.get("createdAt", ""),
                     "url": f"https://github.com/{repo}/pull/{pr['number']}",
                 })
@@ -463,9 +467,18 @@ def build_spi_alerts(spi_status: dict) -> list[dict]:
     """Extract structured alerts from SPI fork status for downstream engines."""
     alerts: list[dict] = []
     for svc, data in spi_status.get("services", {}).items():
-        if data.get("human_required", 0) > 0:
-            alerts.append({"service": svc, "type": "human-required",
-                           "count": data["human_required"], "severity": "high"})
+        # Check for actual merge conflicts (from mergeable state)
+        conflict_count = sum(
+            1 for pr in data.get("pr_items", []) if pr.get("has_conflicts")
+        )
+        if conflict_count > 0:
+            alerts.append({"service": svc, "type": "conflicts",
+                           "count": conflict_count, "severity": "high"})
+        # human-required without conflicts is just a review gate (medium severity)
+        review_count = data.get("human_required", 0) - conflict_count
+        if review_count > 0:
+            alerts.append({"service": svc, "type": "awaiting-review",
+                           "count": review_count, "severity": "medium"})
         if data.get("cascade_blocked", 0) > 0:
             alerts.append({"service": svc, "type": "cascade-blocked",
                            "count": data["cascade_blocked"], "severity": "high"})
@@ -535,15 +548,16 @@ def render_spi_section(spi_status: dict) -> str:
             workflow_failures.append(svc)
 
     # ── Determine overall health ──
-    has_conflicts = any(pr.get("human_required") for pr in sync_prs)
+    has_conflicts = any(pr.get("has_conflicts") for pr in sync_prs)
+    has_awaiting_review = any(pr.get("human_required") and not pr.get("has_conflicts") for pr in sync_prs)
     has_cascade = any(i["category"] == "cascade" for i in other_issues)
     has_wf_fail = len(workflow_failures) > 0
-    needs_attention = has_conflicts or has_cascade or has_wf_fail or len(sync_prs) > 0
+    needs_attention = has_conflicts or has_awaiting_review or has_cascade or has_wf_fail or len(sync_prs) > 0
 
     header_callout = "info" if needs_attention else "success"
     if has_conflicts or has_cascade or has_wf_fail:
         attention_count = sum([
-            len([p for p in sync_prs if p.get("human_required")]),
+            len([p for p in sync_prs if p.get("has_conflicts")]),
             len(workflow_failures),
         ])
         header_text = f"{attention_count} item{'s' if attention_count != 1 else ''} need human action"
@@ -561,9 +575,17 @@ def render_spi_section(spi_status: dict) -> str:
         lines.append("> [!warning] Upstream Sync")
 
         # Show sync issues (tracking issues for the sync)
+        # Look up actual conflict status from the linked sync PR for this service
+        sync_pr_by_svc = {pr["service"]: pr for pr in sync_prs}
         for issue in sync_issues:
             svc = issue["service"]
-            status = "⚠️ conflicts" if "human-required" in issue["labels"] else "✅ validated"
+            linked_pr = sync_pr_by_svc.get(svc)
+            if linked_pr and linked_pr.get("has_conflicts"):
+                status = "⚠️ conflicts"
+            elif "human-required" in issue["labels"]:
+                status = "👀 awaiting review"
+            else:
+                status = "✅ validated"
             lines.append(
                 f"> - **{svc}** [#{issue['number']}]({issue['url']}) "
                 f"{issue['title'][:60]} — {status}"
@@ -573,7 +595,12 @@ def render_spi_section(spi_status: dict) -> str:
         sync_issue_services = {i["service"] for i in sync_issues}
         for pr in sync_prs:
             svc = pr["service"]
-            status = "⚠️ conflicts — human-required" if pr.get("human_required") else "ready to merge"
+            if pr.get("has_conflicts"):
+                status = "⚠️ conflicts"
+            elif pr.get("human_required"):
+                status = "👀 awaiting review"
+            else:
+                status = "ready to merge"
             lines.append(
                 f"> - **{svc}** [#{pr['number']}]({pr['url']}) "
                 f"{pr['title'][:60]} — {status}"
@@ -1326,7 +1353,7 @@ def render_recommendations(
             actions.append((
                 88,
                 f"**Resolve SPI fork alerts** — {len(high_alerts)} high-severity alert(s) "
-                f"across {services}. Cascade-blocked or human-required issues stop the fork pipeline.",
+                f"across {services}. Merge conflicts or cascade-blocked issues stop the fork pipeline.",
             ))
         failing_wf = [a for a in spi_alerts if a["type"] == "workflow-failure"]
         if failing_wf:
@@ -1395,10 +1422,10 @@ def render_risks(
                 f"SPI cascade blocked on {services} — upstream changes are not flowing to main. "
                 f"Prolonged blockage increases merge conflict risk when eventually resolved."
             )
-        human = [a for a in spi_alerts if a["type"] == "human-required"]
-        if len(human) >= 3:
+        conflicts = [a for a in spi_alerts if a["type"] == "conflicts"]
+        if len(conflicts) >= 3:
             risks.append(
-                f"{len(human)} SPI forks need manual intervention — systemic issue may be blocking "
+                f"{len(conflicts)} SPI forks have merge conflicts — systemic issue may be blocking "
                 f"the automated sync pipeline across multiple services."
             )
 
@@ -1628,10 +1655,15 @@ def render_delegation(
                     85,
                     f"**@spi agent** → Investigate failing main workflow on osdu-spi-{alert['service']}",
                 ))
-            elif alert["type"] == "human-required":
+            elif alert["type"] == "conflicts":
                 items.append((
                     80,
-                    f"**@spi agent** → Resolve human-required issue on osdu-spi-{alert['service']} (conflict resolution)",
+                    f"**@spi agent** → Resolve merge conflicts on osdu-spi-{alert['service']}",
+                ))
+            elif alert["type"] == "awaiting-review":
+                items.append((
+                    60,
+                    f"**@spi agent** → Review upstream sync PR on osdu-spi-{alert['service']}",
                 ))
             elif alert["type"] == "cascade-blocked":
                 items.append((
